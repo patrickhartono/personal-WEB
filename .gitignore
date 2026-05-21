@@ -2,11 +2,11 @@
 .DS_Store
 
 # bm-talk: source & draft files not used by the deck
-bm-talk/uploads/
-bm-talk/assets/extract/
-bm-talk/screenshots/
+teaching/guest-lectures/bm-talk/uploads/
+teaching/guest-lectures/bm-talk/assets/extract/
+teaching/guest-lectures/bm-talk/screenshots/
 
 # bm-talk: unused asset files (kept locally, not pushed)
-bm-talk/assets/f2-still.png
-bm-talk/assets/f2-performance.jpg
-bm-talk/assets/onycho-lab.jpg
+teaching/guest-lectures/bm-talk/assets/f2-still.png
+teaching/guest-lectures/bm-talk/assets/f2-performance.jpg
+teaching/guest-lectures/bm-talk/assets/onycho-lab.jpg
