@@ -1,0 +1,1722 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sound, Systems, and Computational Imagination — Patrick Hartono</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@200;300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css" />
+
+<style>
+  /* Top-right section indicator chrome — global overlay above deck-stage */
+  #chrome-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+  }
+  /* Hide deck-stage's own count overlay if a slide chrome handles it visually;
+     we keep it though — it's useful for presenter. */
+</style>
+</head>
+<body>
+
+<!-- Theme toggle (dark / light) -->
+<button id="theme-toggle" aria-label="Toggle dark / light mode" title="Toggle dark / light mode">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <!-- moon (dark mode → click to go light) -->
+    <path class="icon-moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>
+    <!-- sun (light mode → click to go dark) -->
+    <g class="icon-sun" style="display:none">
+      <circle cx="12" cy="12" r="4"/>
+      <line x1="12" y1="2"  x2="12" y2="5"/>
+      <line x1="12" y1="19" x2="12" y2="22"/>
+      <line x1="2"  y1="12" x2="5"  y2="12"/>
+      <line x1="19" y1="12" x2="22" y2="12"/>
+      <line x1="4.5"  y1="4.5"  x2="6.7"  y2="6.7"/>
+      <line x1="17.3" y1="17.3" x2="19.5" y2="19.5"/>
+      <line x1="4.5"  y1="19.5" x2="6.7"  y2="17.3"/>
+      <line x1="17.3" y1="6.7"  x2="19.5" y2="4.5"/>
+    </g>
+  </svg>
+</button>
+
+<script>
+  // Theme bootstrap — applied before deck-stage renders so first paint is correct.
+  (function() {
+    const KEY = 'bm-talk-theme';
+    const root = document.documentElement;
+    function apply(theme) {
+      if (theme === 'light') root.setAttribute('data-theme', 'light');
+      else root.removeAttribute('data-theme');
+      const btn = document.getElementById('theme-toggle');
+      if (btn) {
+        btn.querySelector('.icon-moon').style.display = theme === 'light' ? 'none'  : '';
+        btn.querySelector('.icon-sun').style.display  = theme === 'light' ? ''      : 'none';
+      }
+      if (window.__remountSketches) window.__remountSketches();
+    }
+    const stored = (() => { try { return localStorage.getItem(KEY); } catch (e) { return null; } })();
+    const initial = stored || 'dark';
+    apply(initial);
+    window.addEventListener('DOMContentLoaded', () => {
+      apply(initial); // re-run so button icon is in sync after DOM exists
+      const btn = document.getElementById('theme-toggle');
+      btn.addEventListener('click', () => {
+        const cur = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        const next = cur === 'light' ? 'dark' : 'light';
+        try { localStorage.setItem(KEY, next); } catch (e) {}
+        apply(next);
+      });
+      // Press T to toggle as well
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 't' || e.key === 'T') {
+          if (e.target && (e.target.tagName === 'INPUT' || e.target.isContentEditable)) return;
+          document.getElementById('theme-toggle').click();
+        }
+      });
+    });
+  })();
+</script>
+
+<deck-stage width="1920" height="1080" no-rail>
+
+<!-- =====================================================================
+     S01 — TITLE
+     ===================================================================== -->
+<section data-label="01 Title" data-section="Opening" data-section-num="01">
+  <div class="sketch-bg" data-sketch="opening"></div>
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">01</span><span class="slug">Opening</span></div>
+    <div class="corner tl mono"><span class="t-faint">Guest Lecture</span> · <span class="t-mute">Universitas Bunda Mulia, Jakarta</span></div>
+
+    <div class="fill"></div>
+    <p class="eyebrow amber">Keynote <span class="dash">/</span> 2026</p>
+    <h1 class="h-display">
+      Sound, Systems,<br/>
+      <span class="t-mute">and</span> Computational<br/>
+      Imagination<span class="t-amber">.</span>
+    </h1>
+    <div style="margin-top: 56px;" class="row gap-32">
+      <div class="lead" style="max-width:1100px;">
+        From electroacoustic practice<br/>
+        <span class="t-mute">to AI and beyond.</span>
+      </div>
+    </div>
+    <div class="fill"></div>
+
+    <div class="row between" style="align-items:flex-end;">
+      <div>
+        <div class="mono" style="font-size:22px; letter-spacing:0.08em; color:var(--fg-2);">Dr. Patrick Hartono</div>
+        <div class="mono" style="font-size:24px; letter-spacing:0.14em; color:var(--fg-3); text-transform:uppercase; margin-top:8px;">Lecturer in Digital Media (Interaction) · RMIT University Vietnam</div>
+      </div>
+      <div class="mono" style="font-size:16px; letter-spacing:0.14em; color:var(--fg-3); text-transform:uppercase; text-align:right;">
+        ~45 slides · 40–60 min<br/>
+        <span style="color:var(--cyan);">↓ press →</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S02 — WELCOME / WHO
+     ===================================================================== -->
+<section data-label="02 Who I am" data-section="Opening" data-section-num="01">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">01</span><span class="slug">Opening</span></div>
+    <div class="corner bl">02 / Who I am</div>
+    <div class="corner br mono"><span class="t-mute">02 / 49</span></div>
+
+    <p class="eyebrow">Why am I speaking about this?</p>
+    <h2 class="h-title" style="max-width:1500px;">
+      I am an Indonesian-born composer<br/>
+      who became <span class="t-cyan">a maker of systems</span>.
+    </h2>
+
+    <div class="fill"></div>
+
+    <div class="split-asym" style="align-items:end;">
+      <div class="body wide">
+        Born in <strong>Makassar</strong>. Trained as an electroacoustic composer, then drifted —
+        from sound, to image, to interactive systems, to AI. I now teach and research
+        at the seam where listening meets computation.
+      </div>
+      <div class="col gap-item">
+        <div class="row gap-32" style="flex-wrap:wrap;">
+          <span class="tag">composer</span>
+          <span class="tag">audiovisual</span>
+          <span class="tag amber">new media</span>
+          <span class="tag amber">researcher</span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="rule" style="margin-top:56px;" />
+    <div class="source">
+      <span><span class="lbl">RMIT</span><a href="https://www.rmit.edu.vn/profiles/h/patrick-hartono">rmit.edu.vn/profiles/h/patrick-hartono</a></span>
+      <span><span class="lbl">GOLD</span><a href="https://www.gold.ac.uk/computing/people/hartono-patrick/">gold.ac.uk/computing/people/hartono-patrick</a></span>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S03 — TRAJECTORY MAP
+     ===================================================================== -->
+<section data-label="03 Trajectory" data-section="Opening" data-section-num="01">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">01</span><span class="slug">Opening</span></div>
+    <div class="corner bl">03 / Trajectory</div>
+    <div class="corner br mono"><span class="t-mute">03 / 49</span></div>
+
+    <p class="eyebrow">A trajectory, not a CV</p>
+    <h2 class="h-title">Codarts <span class="t-faint">→</span> IRCAM <span class="t-faint">→</span> Melbourne <span class="t-faint">→</span> Goldsmiths <span class="t-faint">→</span> RMIT.</h2>
+
+    <div class="fill"></div>
+
+    <div class="timeline">
+      <div class="node"><div class="where">Rotterdam</div><div class="what">Codarts · Sonology (minor)</div></div>
+      <div class="node"><div class="where">London</div><div class="what">MMus Sonic Arts · Goldsmiths</div></div>
+      <div class="node"><div class="where">Paris</div><div class="what">Live Electronics · IRCAM</div></div>
+      <div class="node"><div class="where">Melbourne</div><div class="what">PhD · Interactive Composition</div></div>
+      <div class="node"><div class="where">London</div><div class="what">Lecturer · Computational Arts</div></div>
+      <div class="node"><div class="where">Ho Chi Minh City</div><div class="what">Lecturer · Digital Media (Interaction)</div></div>
+      <div class="node"><div class="where">— now —</div><div class="what">Researcher · AV + AI + Pedagogy</div></div>
+    </div>
+
+    <div class="fill"></div>
+
+    <div class="source">
+      <span><span class="lbl">IRCAM</span><a href="https://calls.ircam.fr/profiles/individual/7315/">calls.ircam.fr/profiles/individual/7315</a></span>
+      <span><span class="lbl">EXT</span><a href="https://extended.asia/contributor/patrick-hartono-v3/">extended.asia/contributor/patrick-hartono-v3</a></span>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S04 — CREDENTIALS / CONTEXT (one slide only)
+     ===================================================================== -->
+<section data-label="04 Context" data-section="Context" data-section-num="02">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">02</span><span class="slug">Context</span></div>
+    <div class="corner bl">04 / Selected context</div>
+    <div class="corner br mono"><span class="t-mute">04 / 49</span></div>
+
+    <p class="eyebrow">Not as self-claim — as context</p>
+    <h2 class="h-title">A handful of <span class="t-cyan">verifiable</span> footholds.</h2>
+
+    <div class="fill"></div>
+
+    <div class="split-2" style="row-gap:36px;">
+      <ul class="bullets">
+        <li><strong>Ars Electronica</strong> — <em>Hutan Plastik</em> in the Listening Room.</li>
+        <li><strong>Stanford CCRMA</strong> — Linux Audio Conference 2019.</li>
+        <li><strong>Journal for Artistic Research</strong> — editorial board engagement.</li>
+        <li><strong>iiicon (Harvard)</strong> — conference presentation.</li>
+      </ul>
+      <ul class="bullets amber">
+        <li><strong>SIGGRAPH DAC</strong> — profile + SPARKS 2026 involvement.</li>
+        <li><strong>NIME 2025</strong> — <em>Harmonix Series</em> publication.</li>
+        <li><strong>Organised Sound</strong> — <em>Soundscapes of Papua</em>.</li>
+        <li><strong>Organised Sound 28(2)</strong> — <em>Algorave: Paguyuban Algorave</em> (w/ Sutanto, 2023).</li>
+      </ul>
+    </div>
+
+    <div class="fill"></div>
+
+    <div class="source" style="font-size:24px; gap:24px; column-gap:24px;">
+      <span><a href="https://ars.electronica.art/panic/en/view/listening-room-22338ddb450c806d9e78ce1bc989b181/">ars.electronica.art/…/listening-room</a></span>
+      <span><a href="https://lac.linuxaudio.org/2019/">lac.linuxaudio.org/2019</a></span>
+      <span><a href="https://www.jar-online.net/journal-artistic-research">jar-online.net</a></span>
+      <span><a href="https://dac.siggraph.org/sparks/2026-01-23_beyond-the-global-north/">dac.siggraph.org/sparks/2026</a></span>
+      <span><a href="https://nime.org/proc/nime2025_22/index.html">nime.org/proc/nime2025_22</a></span>
+      <span><a href="https://www.cambridge.org/core/journals/organised-sound/article/soundscapes-of-papua-culturalbased-pedagogical-approach-through-electroacoustic-music/BA0932CA4284AA343707FED17F7B45AC">cambridge.org/…/organised-sound (Papua)</a></span>
+      <span><a href="https://www.cambridge.org/core/journals/organised-sound/article/algorave-music-practice-in-indonesia-paguyuban-algorave/08D716E4823D973E1B22A04C4B781ADF">cambridge.org/…/paguyuban-algorave</a></span>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S05 — SECTION DIVIDER · 03
+     ===================================================================== -->
+<section data-label="05 §03 From Sound to Computational Arts" data-section="From Sound to Computational Arts" data-section-num="03">
+  <div class="divider">
+    <div class="corner tr"><span class="sect-num">03</span><span class="slug">From Sound to Computational Arts</span></div>
+    <div class="corner br mono"><span class="t-mute">05 / 49</span></div>
+    <div></div>
+    <div class="midline">
+      <div class="num">03</div>
+      <div class="title-wrap">
+        <div class="kicker">— Section</div>
+        <div class="name">From Sound<br/><span class="t-mute">to Computational</span><br/>Arts<span class="t-cyan">.</span></div>
+      </div>
+    </div>
+    <div></div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S06 — Computer music quote
+     ===================================================================== -->
+<section data-label="06 Computer music" data-section="From Sound to Computational Arts" data-section-num="03">
+  <div class="slide-pad content center-y">
+    <div class="corner tr"><span class="sect-num">03</span><span class="slug">From Sound to Computational Arts</span></div>
+    <div class="corner bl">06 / What computer music taught me</div>
+    <div class="corner br mono"><span class="t-mute">06 / 49</span></div>
+
+    <div style="max-width:1500px;">
+      <div class="mono" style="font-size:28px; color:var(--amber); letter-spacing:0.04em;">“</div>
+      <p class="h-quote">
+        Computer music trained me to think <span class="t-amber">beyond conventional musical notation</span> —
+        to compose with systems, processes, algorithms, spatial sound, synthesis,
+        interaction, and uncertainty.
+      </p>
+      <div class="mono" style="margin-top:32px; color:var(--fg-3); font-size:18px; letter-spacing:0.12em; text-transform:uppercase;">— Personal framing</div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S07 — Sound as material
+     ===================================================================== -->
+<section data-label="07 Sound as material" data-section="From Sound to Computational Arts" data-section-num="03">
+  <div class="sketch-bg" data-sketch="soundMaterial" style="opacity:0.42;"></div>
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">03</span><span class="slug">From Sound to Computational Arts</span></div>
+    <div class="corner bl">07 / Sound as material</div>
+    <div class="corner br mono"><span class="t-mute">07 / 49</span></div>
+
+    <p class="eyebrow amber">Material #1</p>
+    <h2 class="h-title">Sound <span class="t-amber">as material</span>,<br/>not just signal.</h2>
+
+    <div class="fill"></div>
+
+    <div class="split-asym">
+      <div>
+        <ul class="bullets amber">
+          <li><strong>Electroacoustic</strong> — composing with recorded, synthesised, processed sound.</li>
+          <li><strong>Sonology</strong> — sound as structure, space, and perception.</li>
+          <li><strong>Spatial sound</strong> — composition extended into the listening room.</li>
+        </ul>
+      </div>
+      <div class="lead t-mute">
+        Pierre Schaeffer's question still holds:<br/>
+        <span class="t-amber italic">what does this sound do</span> — not what does it mean?
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S08 — Image as computed behaviour
+     ===================================================================== -->
+<section data-label="08 Image as computed behaviour" data-section="From Sound to Computational Arts" data-section-num="03">
+  <div class="sketch-bg" data-sketch="noiseField" style="opacity:0.4;"></div>
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">03</span><span class="slug">From Sound to Computational Arts</span></div>
+    <div class="corner bl">08 / Image as computed behaviour</div>
+    <div class="corner br mono"><span class="t-mute">08 / 49</span></div>
+
+    <p class="eyebrow">Material #2</p>
+    <h2 class="h-title">Image <span class="t-cyan">as computed behaviour</span>,<br/>not surface.</h2>
+
+    <div class="fill"></div>
+
+    <div class="split-asym">
+      <ul class="bullets" style="max-width:1100px;">
+        <li><strong>Generative visuals</strong> — image as the running of a process.</li>
+        <li><strong>TouchDesigner &amp; real-time systems</strong> — performance as dataflow.</li>
+        <li><strong>VR &amp; game technology</strong> — space as interactive composition.</li>
+      </ul>
+      <figure style="margin:0; max-width:720px;">
+        <div class="mono" style="font-size:36px; color:var(--amber); line-height:0.6;">“</div>
+        <blockquote class="serif italic" style="margin:0; font-size:30px; line-height:1.35; letter-spacing:-0.005em; color:var(--fg);">
+          There is solidarity between scientific development and the progress of music. Throwing new light on nature, science permits music to <span class="t-amber">progress</span> — or rather to grow and change with changing times — by revealing to our senses harmonies and sensations before unfelt. <span class="t-cyan">On the threshold of beauty, science and art collaborate.</span>
+        </blockquote>
+        <figcaption class="mono" style="margin-top:22px; font-size:18px; letter-spacing:0.14em; text-transform:uppercase; color:var(--fg-3);">
+          — Edgard Varèse, <span class="italic" style="text-transform:none; letter-spacing:0;">The Liberation of Sound</span>, 1936
+        </figcaption>
+      </figure>
+    </div>
+
+    <div class="source">
+      <span class="lbl">SRC</span><a href="https://monoskop.org/images/c/c1/Varese_Edgard_1966_The_Liberation_of_Sound.pdf">monoskop.org/…/The_Liberation_of_Sound (PDF)</a>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S09 — PhD + current practice synthesis
+     ===================================================================== -->
+<section data-label="09 PhD + Practice" data-section="From Sound to Computational Arts" data-section-num="03">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">03</span><span class="slug">From Sound to Computational Arts</span></div>
+    <div class="corner bl">09 / From PhD to now</div>
+    <div class="corner br mono"><span class="t-mute">09 / 49</span></div>
+
+    <p class="eyebrow">Material #3</p>
+    <h2 class="h-title">Body, gesture, myth — <br/>and now <span class="t-cyan">intelligence</span>.</h2>
+
+    <div class="fill"></div>
+
+    <div class="split-2" style="align-items:start;">
+      <div class="col gap-item">
+        <div class="mono" style="font-size:18px; color:var(--amber); letter-spacing:0.16em; text-transform:uppercase;">PhD · Melbourne</div>
+        <div class="body">
+          Myth, body, gesture, and interactive audiovisual composition.
+          Performers and machines as <em>co-compositional</em> agents.
+        </div>
+      </div>
+      <div class="col gap-item">
+        <div class="mono" style="font-size:18px; color:var(--cyan); letter-spacing:0.16em; text-transform:uppercase;">Now · RMIT Vietnam</div>
+        <div class="body">
+          AI, text, perception, machine learning, intermediality. Audiovisual
+          works that ask what machine listening, seeing, and judging actually do
+          to a composition.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S10 — Definition slide
+     ===================================================================== -->
+<section data-label="10 Definition" data-section="From Sound to Computational Arts" data-section-num="03">
+  <div class="slide-pad content center-y">
+    <div class="corner tr"><span class="sect-num">03</span><span class="slug">From Sound to Computational Arts</span></div>
+    <div class="corner bl">10 / Central thesis</div>
+    <div class="corner br mono"><span class="t-mute">10 / 49</span></div>
+
+    <div style="max-width:1620px;">
+      <p class="eyebrow">Working definition</p>
+      <p class="h-quote">
+        Computational Arts is not simply art made with computers.<br/>
+        It is <span class="t-cyan">a way of composing systems</span>:
+        sound systems, visual systems, interactive systems,
+        social systems, <span class="t-amber">and now intelligent systems.</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S11 — Section 04 divider
+     ===================================================================== -->
+<section data-label="11 §04 Added Value" data-section="Added Value" data-section-num="04">
+  <div class="divider">
+    <div class="corner tr"><span class="sect-num">04</span><span class="slug">Added Value</span></div>
+    <div class="corner br mono"><span class="t-mute">11 / 49</span></div>
+    <div></div>
+    <div class="midline">
+      <div class="num amber">04</div>
+      <div class="title-wrap">
+        <div class="kicker">— Section · After Chion</div>
+        <div class="name">Added Value<br/><span class="t-mute">as compositional</span><br/>ground<span class="t-amber">.</span></div>
+      </div>
+    </div>
+    <div></div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S12 — Chion's idea
+     ===================================================================== -->
+<section data-label="12 Chion" data-section="Added Value" data-section-num="04">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">04</span><span class="slug">Added Value</span></div>
+    <div class="corner bl">12 / Chion's idea</div>
+    <div class="corner br mono"><span class="t-mute">12 / 49</span></div>
+
+    <p class="eyebrow">After Michel Chion</p>
+    <h2 class="h-title">Sound does not <span class="t-faint">just</span> accompany image.</h2>
+
+    <div class="fill"></div>
+
+    <ul class="bullets" style="max-width:1500px;">
+      <li>Sound can <strong>transform</strong> what an image appears to mean.</li>
+      <li>Meaning emerges <strong>between</strong> perception, image, sound, and context.</li>
+      <li>The audiovisual contract is <strong>productive</strong>, not additive.</li>
+    </ul>
+
+    <div class="fill"></div>
+    <div class="source">
+      <span class="lbl">REF</span><span>Michel Chion, <em>Audio-Vision: Sound on Screen</em> (Columbia UP, 1994).</span>
+      <span><span class="lbl">READ</span><a href="https://monoskop.org/Michel_Chion">monoskop.org/Michel_Chion</a></span>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S13 — My extension
+     ===================================================================== -->
+<section data-label="13 Beyond synchronisation" data-section="Added Value" data-section-num="04">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">04</span><span class="slug">Added Value</span></div>
+    <div class="corner bl">13 / Beyond synchronisation</div>
+    <div class="corner br mono"><span class="t-mute">13 / 49</span></div>
+
+    <p class="eyebrow amber">My extension</p>
+    <h2 class="h-title">Meaning emerges when sound, image, <br/><span class="t-amber">and text</span> reorganise each other.</h2>
+
+    <div class="fill"></div>
+
+    <div class="split-asym">
+      <div class="body">
+        Added value is not only sound enriching image. In my work it becomes a
+        <em>compositional condition</em> — text operates alongside sound and image
+        as an agent that re-tunes perception, not as caption or decoration.
+      </div>
+      <div class="col gap-item">
+        <div class="trinity-diagram" aria-label="Three-way contract diagram: sound, image, and text">
+          <svg viewBox="0 0 440 380" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <filter id="trinity-glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="2.4"/>
+              </filter>
+            </defs>
+
+            <!-- connection lines (drawn behind nodes) -->
+            <g stroke-width="1.2" stroke-opacity="0.55" fill="none">
+              <line x1="220" y1="70" x2="80"  y2="310" stroke="#fbbf24"/>
+              <line x1="220" y1="70" x2="360" y2="310" stroke="#5eead4"/>
+              <line x1="80"  y1="310" x2="360" y2="310" stroke="currentColor" style="color:var(--fg-2);"/>
+            </g>
+
+            <!-- traveling data dots -->
+            <circle r="4" fill="#fbbf24" filter="url(#trinity-glow)">
+              <animateMotion dur="3.4s" repeatCount="indefinite" path="M 220 70 L 80 310 L 220 70"/>
+            </circle>
+            <circle r="4" fill="#5eead4" filter="url(#trinity-glow)">
+              <animateMotion dur="3.8s" repeatCount="indefinite" begin="-1.2s" path="M 360 310 L 220 70 L 360 310"/>
+            </circle>
+            <circle r="4" fill="#e8e8ec" filter="url(#trinity-glow)">
+              <animateMotion dur="4.2s" repeatCount="indefinite" begin="-2.1s" path="M 80 310 L 360 310 L 80 310"/>
+            </circle>
+
+            <!-- nodes -->
+            <g>
+              <circle class="node node-text"  cx="220" cy="70"  r="24" fill="none" stroke="#e8e8ec" stroke-width="1.6"/>
+              <circle class="node node-sound" cx="80"  cy="310" r="24" fill="none" stroke="#fbbf24" stroke-width="1.6"/>
+              <circle class="node node-image" cx="360" cy="310" r="24" fill="none" stroke="#5eead4" stroke-width="1.6"/>
+            </g>
+          </svg>
+          <div class="t-node-label text"   style="top:18px;    left:50%; transform:translateX(-50%);">TEXT</div>
+          <div class="t-node-label sound"  style="bottom:8px;  left:18%; transform:translateX(-50%);">SOUND</div>
+          <div class="t-node-label image"  style="bottom:8px;  left:82%; transform:translateX(-50%);">IMAGE</div>
+        </div>
+        <div class="cap" style="text-align:center; margin-top:8px;">a three-way contract</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S14 — Manuscript card
+     ===================================================================== -->
+<section data-label="14 Manuscript" data-section="Added Value" data-section-num="04">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">04</span><span class="slug">Added Value</span></div>
+    <div class="corner bl">14 / Manuscript in review</div>
+    <div class="corner br mono"><span class="t-mute">14 / 49</span></div>
+
+    <p class="eyebrow">Current paper</p>
+    <h2 class="h-title" style="max-width:1620px;">
+      Intermediality <span class="t-cyan">Beyond Synchronisation</span>:<br/>
+      Text as a Compositional Agent in Electroacoustic Audiovisual Performance.
+    </h2>
+
+    <div class="fill"></div>
+
+    <div class="row gap-32" style="flex-wrap:wrap; align-items:center;">
+      <span class="tag mute">Organised Sound</span>
+      <span class="tag amber">under final review</span>
+      <span class="tag mute">private manuscript</span>
+    </div>
+    <div class="body t-mute" style="margin-top:32px; max-width:1400px;">
+      Not yet published. No DOI yet. URL forthcoming.
+    </div>
+
+    <div class="source"><span class="lbl">STATUS</span>under final review · Organised Sound · private manuscript</div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S15 — Section 05 divider — Case Studies
+     ===================================================================== -->
+<section data-label="15 §05 Case Studies" data-section="Case Studies" data-section-num="05">
+  <div class="divider">
+    <div class="corner tr"><span class="sect-num">05</span><span class="slug">Case Studies</span></div>
+    <div class="corner br mono"><span class="t-mute">15 / 49</span></div>
+    <div></div>
+    <div class="midline">
+      <div class="num">05</div>
+      <div class="title-wrap">
+        <div class="kicker">— Section · Four works</div>
+        <div class="name"><span class="t-cyan">Case</span> <span class="t-amber">studies</span>.</div>
+      </div>
+    </div>
+    <div></div>
+  </div>
+  <div style="position:absolute; bottom:240px; left:120px; right:120px;">
+    <div class="row gap-32" style="flex-wrap:wrap;">
+      <span class="tag">01 · Ciung Wanara</span>
+      <span class="tag">02 · Hutan Plastik</span>
+      <span class="tag amber">03 · F2</span>
+      <span class="tag amber">04 · Peripersonal</span>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S16 — Ciung Wanara intro
+     ===================================================================== -->
+<section data-label="16 Ciung Wanara — intro" data-section="Case Studies · Ciung Wanara" data-section-num="05">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">05.1</span><span class="slug">Case Studies · Ciung Wanara</span></div>
+    <div class="corner bl">16 / Ciung Wanara</div>
+    <div class="corner br mono"><span class="t-mute">16 / 49</span></div>
+
+    <p class="eyebrow">Case study 01</p>
+    <h2 class="h-title">Ciung Wanara<span class="t-cyan">.</span><br/>
+      <span class="t-mute" style="font-size:0.6em;">Interactive audiovisual composition.</span>
+    </h2>
+
+    <div class="fill"></div>
+
+    <div class="split-asym">
+      <div>
+        <ul class="bullets">
+          <li>Foundation from my PhD research.</li>
+          <li>Inspired by Indonesian shadow puppet battle.</li>
+          <li>Rooster avatars respond to performer gesture.</li>
+          <li>Composing not material, but <strong>behaviour</strong>.</li>
+        </ul>
+      </div>
+      <div class="col gap-item">
+        <figure style="margin:0;">
+          <img src="assets/ciung-wanara.jpg" alt="Ciung Wanara live performance — rooster avatars projected on a large screen" style="display:block; width:100%; aspect-ratio:4/3; object-fit:cover; border:1px solid var(--rule);" />
+          <figcaption class="cap" style="margin-top:14px;">live performance · rooster avatars + gestural control</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="source"><span class="lbl">SRC</span><a href="https://www.nime.org/proc_music/nime2024_music_45/index.html">nime.org/proc_music/nime2024_music_45</a></div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S17 — Ciung Wanara video
+     ===================================================================== -->
+<section data-label="17 Ciung Wanara — video" data-section="Case Studies · Ciung Wanara" data-section-num="05">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">05.1</span><span class="slug">Case Studies · Ciung Wanara</span></div>
+    <div class="corner bl">17 / Ciung Wanara · video</div>
+    <div class="corner br mono"><span class="t-mute">17 / 49</span></div>
+
+    <p class="eyebrow">In performance · <span class="t-cyan">AIMC 2024, Oxford</span></p>
+
+    <div class="row gap-64" style="align-items:stretch; flex:1; margin-top:32px;">
+      <div style="flex:2; position:relative; aspect-ratio:16/9; border:1px solid var(--rule);">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/UFeEJXJj0gw?start=477&rel=0&modestbranding=1&playsinline=1"
+          title="Ciung Wanara — Patrick Hartono"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+          style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block;">
+        </iframe>
+        <a href="https://youtu.be/UFeEJXJj0gw?t=477"
+           target="_blank" rel="noopener"
+           style="position:absolute; right:8px; bottom:8px; font-family:var(--mono); font-size:14px; letter-spacing:0.08em; color:var(--fg); background:rgba(0,0,0,0.55); padding:6px 10px; text-decoration:none; backdrop-filter:blur(4px);">
+          ↗ open on YouTube
+        </a>
+      </div>
+      <div class="col gap-item" style="flex:1; justify-content:space-between;">
+        <div>
+          <div class="mono" style="font-size:18px; color:var(--amber); letter-spacing:0.14em; text-transform:uppercase;">Key transition</div>
+          <p class="h-subtitle italic">
+            From composing fixed AV material<br/>
+            → to composing <span class="t-cyan">interactive audiovisual behaviour</span>.
+          </p>
+        </div>
+        <div class="mono" style="font-size:18px; color:var(--fg-3); line-height:1.6;">
+          presented at   <span class="t-cyan">AIMC 2024</span><br/>
+          <span class="t-faint">AI Music Creativity Conference</span><br/>
+          <span class="t-faint">University of Oxford</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="source">
+      <span><span class="lbl">NIME</span><a href="https://www.nime.org/proc_music/nime2024_music_45/index.html">nime.org/proc_music/nime2024_music_45</a></span>
+      <span><span class="lbl">AIMC</span><a href="https://aimc2024.pubpub.org/pub/w3oacbry/release/1">aimc2024.pubpub.org/pub/w3oacbry</a></span>
+      <span><span class="lbl">VIDEO</span><a href="https://www.youtube.com/watch?v=UFeEJXJj0gw&t=477s">youtu.be/UFeEJXJj0gw</a></span>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S18 — Hutan Plastik intro (ecological p5)
+     ===================================================================== -->
+<section data-label="18 Hutan Plastik — intro" data-section="Case Studies · Hutan Plastik" data-section-num="05">
+  <div class="sketch-bg" data-sketch="ecological" style="opacity:0.55;"></div>
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">05.2</span><span class="slug">Case Studies · Hutan Plastik</span></div>
+    <div class="corner bl">18 / Hutan Plastik</div>
+    <div class="corner br mono"><span class="t-mute">18 / 49</span></div>
+
+    <p class="eyebrow amber">Case study 02</p>
+    <h2 class="h-title">Hutan Plastik<span class="t-amber">.</span><br/>
+      <span class="t-mute" style="font-size:0.6em;">Forest, plastic, electroacoustic listening.</span>
+    </h2>
+
+    <div class="fill"></div>
+
+    <div class="body wide">
+      Audiovisual / electroacoustic work concerned with forest destruction,
+      West Papua, palm oil, environmental memory. Exhibited in the
+      Ars Electronica Listening Room.
+    </div>
+
+    <div class="source">
+      <span><span class="lbl">ARS</span><a href="https://ars.electronica.art/panic/en/view/listening-room-22338ddb450c806d9e78ce1bc989b181/">ars.electronica.art/…/listening-room</a></span>
+      <span><span class="lbl">BEAST</span><a href="https://beast.cal.bham.ac.uk/beast-feast-2025/programme/saturday-3-may/">beast.cal.bham.ac.uk/beast-feast-2025</a></span>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S19 — Hutan Plastik image
+     ===================================================================== -->
+<section data-label="19 Hutan Plastik — still" data-section="Case Studies · Hutan Plastik" data-section-num="05">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">05.2</span><span class="slug">Case Studies · Hutan Plastik</span></div>
+    <div class="corner bl">19 / Hutan Plastik · still</div>
+    <div class="corner br mono"><span class="t-mute">19 / 49</span></div>
+
+    <p class="eyebrow">From the work</p>
+
+    <div class="row gap-64" style="align-items:stretch; flex:1; margin-top:32px;">
+      <!-- [TODO: hutan-plastik-image.jpg] — user will provide -->
+      <figure style="flex:2; margin:0;">
+        <img src="assets/hutan-plastik.jpg" alt="Hutan Plastik — still from the work: a glitched, posterised landscape with burning flames above a forest line" style="display:block; width:100%; aspect-ratio:16/9; object-fit:cover; border:1px solid var(--rule);" />
+        <figcaption class="cap" style="margin-top:14px;">still from the work · forest, flame, glitched surface</figcaption>
+      </figure>
+      <div class="col gap-item" style="flex:1; justify-content:flex-end;">
+        <div class="mono" style="font-size:18px; color:var(--amber); letter-spacing:0.14em; text-transform:uppercase;">Key idea</div>
+        <p class="h-subtitle italic">
+          Electroacoustic listening,<br/>visual imagination,<br/>
+          <span class="t-amber">ecological anxiety</span> — held together.
+        </p>
+      </div>
+    </div>
+
+    <div class="source">
+      <span><span class="lbl">ARS</span><a href="https://ars.electronica.art/panic/en/view/listening-room-22338ddb450c806d9e78ce1bc989b181/">ars.electronica.art/…/listening-room</a></span>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S20 — F2 intro (text drift p5)
+     ===================================================================== -->
+<section data-label="20 F2 — intro" data-section="Case Studies · F2" data-section-num="05">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">05.3</span><span class="slug">Case Studies · F2</span></div>
+    <div class="corner bl">20 / F2</div>
+    <div class="corner br mono"><span class="t-mute">20 / 49</span></div>
+
+    <p class="eyebrow">Case study 03</p>
+    <h2 class="h-title">F2<span class="t-cyan">.</span><br/>
+      <span class="t-mute" style="font-size:0.6em;">Text as a compositional agent.</span>
+    </h2>
+
+    <div class="row gap-64" style="align-items:stretch; flex:1; margin-top:32px;">
+      <figure style="flex:1.3; margin:0;">
+        <img src="assets/f2-intro.png" alt="F2 still — May 1998 testimony text on the left, glowing 3D point-cloud form on the right inside a wireframe cube" style="display:block; width:100%; aspect-ratio:16/9; object-fit:cover; border:1px solid var(--rule); background:#000;" />
+        <figcaption class="cap" style="margin-top:14px;">still from F2 · May 1998 testimony + computed form
+        </figcaption>
+      </figure>
+      <div class="col gap-item center-y" style="flex:1;">
+        <ul class="bullets">
+          <li>Sound, image, and text do not need to be <strong>synchronised</strong> in the conventional sense.</li>
+          <li>Text shapes <strong>perception, memory, narrative tension</strong>.</li>
+          <li>Connected to my current Organised Sound manuscript.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="source"><span class="lbl">STATUS</span>paper in final review · private manuscript · URL forthcoming</div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S21 — F2 image / claim
+     ===================================================================== -->
+<section data-label="21 F2 — claim" data-section="Case Studies · F2" data-section-num="05">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">05.3</span><span class="slug">Case Studies · F2</span></div>
+    <div class="corner bl">21 / F2 · key claim</div>
+    <div class="corner br mono"><span class="t-mute">21 / 49</span></div>
+
+    <div class="row gap-64" style="flex:1; align-items:stretch; margin-top:32px;">
+      <figure style="flex:1.1; margin:0;">
+        <img src="assets/f2-claim.png" alt="F2 still — closing testimony text on the left, glowing point-cloud figure inside a wireframe cube on the right" style="display:block; width:100%; aspect-ratio:16/10; object-fit:cover; border:1px solid var(--rule); background:#000;" />
+        <figcaption class="cap" style="margin-top:14px;">still from F2 · closing testimony + computed presence
+        </figcaption>
+      </figure>
+      <div class="col gap-item center-y" style="flex:1;">
+        <div class="mono" style="font-size:28px; color:var(--amber); letter-spacing:0.04em;">“</div>
+        <p class="h-quote">
+          Text does not describe the audiovisual work.<br/>
+          It <span class="t-cyan">composes how the audiovisual work is perceived</span>.
+        </p>
+      </div>
+    </div>
+
+    <div class="source"><span class="lbl">STATUS</span>paper in final review · private manuscript · URL forthcoming</div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S22 — Harmonix intro
+     ===================================================================== -->
+<section data-label="22 Peripersonal — hero" data-section="Case Studies · Peripersonal" data-section-num="05">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">05.4</span><span class="slug">Case Studies · Peripersonal</span></div>
+    <div class="corner bl">22 / Peripersonal Modular Interfaces</div>
+    <div class="corner br mono"><span class="t-mute">22 / 49</span></div>
+
+    <p class="eyebrow amber">Case study 04 · with Wing Hei Cheryl Hui</p>
+    <h2 class="h-title" style="max-width:1620px;">
+      Peripersonal Modular Interfaces<span class="t-amber">.</span><br/>
+      <span class="t-mute" style="font-size:0.55em;">Accessible Digital Musical Instruments for care ecologies.</span>
+    </h2>
+
+    <div class="row gap-64" style="flex:1; align-items:stretch; margin-top:32px; min-height:0;">
+      <figure style="flex:1.1; margin:0; min-height:0; display:flex; align-items:center; justify-content:center;">
+        <img src="assets/peripersonal-hero.png" alt="Peripersonal Modular Interfaces — a young musician playing a wooden, six-stringed hexagonal sensing tile placed on a starry-print fabric table during a community music workshop" style="display:block; max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; border:1px solid var(--rule); background:#000;" />
+      </figure>
+      <div class="col gap-item center-y" style="flex:1; min-width:0;">
+        <ul class="bullets amber">
+          <li><strong>NIME 2026</strong> · London — paper.</li>
+          <li>Wireless sensing tiles · TPU lattice + Hall-effect.</li>
+          <li>Decoupled <strong>sensing</strong> from <strong>surface</strong>: tunable compliance, hygienic, robust.</li>
+          <li>Co-designed with a London community music charity (N = 12).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="source"><span class="lbl">VENUE</span>NIME 2026 · 23–26 June · London, UK</div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S23 — Harmonix paper embed
+     ===================================================================== -->
+<section data-label="23 Peripersonal — detail" data-section="Case Studies · Peripersonal" data-section-num="05">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">05.4</span><span class="slug">Case Studies · Peripersonal</span></div>
+    <div class="corner bl">23 / Peripersonal · the tile</div>
+    <div class="corner br mono"><span class="t-mute">23 / 49</span></div>
+
+    <p class="eyebrow">One sensing tile</p>
+
+    <div class="row gap-64" style="flex:1; align-items:stretch; margin-top:32px; min-height:0;">
+      <figure style="flex:1.1; margin:0; min-height:0; display:flex; align-items:center; justify-content:center;">
+        <img src="assets/peripersonal-tile.png" alt="Peripersonal hexagonal sensing tile — wooden hexagonal panel with gold lattice keys arranged across the top surface, sitting on a desk" style="display:block; max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; border:1px solid var(--rule);" />
+      </figure>
+      <div class="col gap-item center-y" style="flex:1; min-width:0;">
+        <div class="mono" style="font-size:18px; color:var(--cyan); letter-spacing:0.14em; text-transform:uppercase;">Key result</div>
+        <p class="h-subtitle italic">
+          End-to-end haptic–audio latency:<br/>
+          <span class="t-cyan" style="font-style:normal; font-size:1.4em;">≈ 7 ms</span> average, <span class="t-faint" style="font-style:normal;">&lt; 12 ms max</span>.
+        </p>
+        <hr class="rule" style="margin: 12px 0;" />
+        <p class="body" style="font-size:24px;">
+          Each tile is an independent network node — reconfigurable across tabletops,
+          wheelchair trays, or floors. The instrument is wherever the ensemble decides
+          it should be.
+        </p>
+      </div>
+    </div>
+
+    <div class="source">
+      <span class="lbl">REF</span>Hui &amp; Hartono (2026). <em>Peripersonal Modular Interfaces for Care Ecologies</em>. NIME ’26, London.
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S24 — Section 06 divider — Current research
+     ===================================================================== -->
+<section data-label="24 §06 Current Research" data-section="Current Research" data-section-num="06">
+  <div class="divider">
+    <div class="corner tr"><span class="sect-num">06</span><span class="slug">Current Research</span></div>
+    <div class="corner br mono"><span class="t-mute">24 / 49</span></div>
+    <div></div>
+    <div class="midline">
+      <div class="num">06</div>
+      <div class="title-wrap">
+        <div class="kicker">— Section · Collaborators &amp; students</div>
+        <div class="name">A research<br/><span class="t-mute">network in</span><br/>motion<span class="t-cyan">.</span></div>
+      </div>
+    </div>
+    <div></div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S25 — Network overview
+     ===================================================================== -->
+<section data-label="25 Network overview" data-section="Current Research" data-section-num="06">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">06</span><span class="slug">Current Research</span></div>
+    <div class="corner bl">25 / Network overview</div>
+    <div class="corner br mono"><span class="t-mute">25 / 49</span></div>
+
+    <p class="eyebrow">Six active threads · 2026</p>
+
+    <div class="network" style="margin-top:24px;">
+      <svg viewBox="0 0 1600 720" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <radialGradient id="centerG" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.18"/>
+            <stop offset="80%" stop-color="#fbbf24" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="800" cy="360" r="220" fill="url(#centerG)"/>
+        <!-- spokes -->
+        <g stroke="#5eead4" stroke-opacity="0.35" stroke-width="1">
+          <line x1="800" y1="360" x2="200"  y2="160"/>
+          <line x1="800" y1="360" x2="1400" y2="160"/>
+          <line x1="800" y1="360" x2="150"  y2="380"/>
+          <line x1="800" y1="360" x2="1450" y2="380"/>
+          <line x1="800" y1="360" x2="320"  y2="600"/>
+          <line x1="800" y1="360" x2="1280" y2="600"/>
+        </g>
+        <!-- nodes -->
+        <g fill="#5eead4">
+          <circle cx="200"  cy="160" r="6"/>
+          <circle cx="1400" cy="160" r="6"/>
+          <circle cx="150"  cy="380" r="6"/>
+          <circle cx="1450" cy="380" r="6"/>
+          <circle cx="320"  cy="600" r="6"/>
+          <circle cx="1280" cy="600" r="6"/>
+        </g>
+        <circle cx="800" cy="360" r="10" fill="#fbbf24"/>
+      </svg>
+
+      <div class="node-label center" style="left:50%; top:50%;">Patrick · RMIT Vietnam</div>
+
+      <div class="node-label" style="left:12.5%; top:22.2%;"><span class="col">with Shuang Li</span>Gorgon Loop · SIGGRAPH 2026</div>
+      <div class="node-label" style="left:87.5%; top:22.2%;"><span class="col">with Fioretta Zhang</span>Onycho Lab · ACM C&amp;C 2026</div>
+      <div class="node-label" style="left:9.4%;  top:52.8%;"><span class="col">with Federico</span>Linea Viva · ACM C&amp;C 2026</div>
+      <div class="node-label" style="left:90.6%; top:52.8%;"><span class="col">with C. Berg &amp; B. Youn</span>tricity-flux.xyz · Ars Electronica</div>
+      <div class="node-label" style="left:20%;   top:83.3%;"><span class="col">with Zhiqi Wang</span>Mycortex · ARTECH 2025</div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S26 — Gorgon Loop
+     ===================================================================== -->
+<section data-label="26 Gorgon Loop" data-section="Current Research" data-section-num="06">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">06</span><span class="slug">Current Research</span></div>
+    <div class="corner bl">26 / Gorgon Loop</div>
+    <div class="corner br mono"><span class="t-mute">26 / 49</span></div>
+
+    <p class="eyebrow">06A · with Shuang Li</p>
+    <h2 class="h-title">Gorgon Loop<span class="t-cyan">.</span></h2>
+
+    <div class="row gap-64" style="flex:1; align-items:stretch; margin-top:32px; min-height:0;">
+      <figure style="flex:0.8; margin:0; min-height:0; display:flex; align-items:center; justify-content:center;">
+        <img src="assets/gorgon-loop.jpg" alt="Gorgon Loop — installation: ceiling-mounted rig with hanging displays and mirrors, SIGGRAPH 2026 banner above" style="display:block; max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; border:1px solid var(--rule);" />
+      </figure>
+      <div class="col gap-item center-y" style="flex:1.3; min-width:0;">
+        <ul class="bullets">
+          <li><strong>SIGGRAPH 2026 Art Papers</strong> — camera-ready submitted.</li>
+          <li>Algorithmic judgement &amp; smart mirrors.</li>
+          <li>Collective social behaviour as installation.</li>
+          <li>Machine vision + generative language revealing how systems classify us.</li>
+        </ul>
+        <div class="row gap-32" style="margin-top:24px; flex-wrap:wrap;">
+          <span class="tag amber">forthcoming · SIGGRAPH 2026 · Los Angeles · 19–23 Jul</span>
+        </div>
+      </div>
+    </div>
+    <div class="source"><span class="lbl">DAC</span><a href="https://dac.siggraph.org/person/patrick-hartono/">dac.siggraph.org/person/patrick-hartono</a></div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S27 — Onycho Lab
+     ===================================================================== -->
+<section data-label="27 Onycho Lab" data-section="Current Research" data-section-num="06">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">06</span><span class="slug">Current Research</span></div>
+    <div class="corner bl">27 / Onycho Lab</div>
+    <div class="corner br mono"><span class="t-mute">27 / 49</span></div>
+
+    <p class="eyebrow amber">06B · with Fioretta Zhang</p>
+    <h2 class="h-title">Onycho Lab<span class="t-amber">.</span></h2>
+
+    <div class="row gap-64" style="flex:1; align-items:stretch; margin-top:32px; min-height:0;">
+      <figure style="flex:0.95; margin:0; min-height:0; display:flex; align-items:center; justify-content:center;">
+        <img src="assets/onycho-nails.jpg" alt="Onycho Lab — five fingertip prostheses in pink, peach, blue, magenta and crimson, mounted upright in a row" style="display:block; max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; border:1px solid var(--rule);" />
+      </figure>
+      <div class="col gap-item center-y" style="flex:1.05; min-width:0;">
+        <ul class="bullets amber">
+          <li><strong>ACM Creativity &amp; Cognition 2026</strong> — demo paper.</li>
+          <li>Wearable fingertip prostheses.</li>
+          <li>Feminist hapticism · artificial nails as <strong>bodily technology</strong>.</li>
+          <li>Touch, ornament, and labour re-framed through a clinic-style ritual.</li>
+        </ul>
+        <div class="row gap-32" style="margin-top:24px; flex-wrap:wrap;">
+          <span class="tag amber">conditionally accepted · in final submission</span>
+        </div>
+      </div>
+    </div>
+    <div class="source"><span class="lbl">C&amp;C</span><a href="https://cc.acm.org/2026/demos/">cc.acm.org/2026/demos</a></div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S28 — Linea Viva
+     ===================================================================== -->
+<section data-label="28 Linea Viva" data-section="Current Research" data-section-num="06">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">06</span><span class="slug">Current Research</span></div>
+    <div class="corner bl">28 / Linea Viva</div>
+    <div class="corner br mono"><span class="t-mute">28 / 49</span></div>
+
+    <p class="eyebrow">06C · with Federico (Fede)</p>
+    <h2 class="h-title">Linea Viva<span class="t-cyan">.</span></h2>
+
+    <div class="row gap-64" style="flex:1; align-items:stretch; margin-top:32px; min-height:0;">
+      <figure style="flex:1.2; margin:0; min-height:0; display:flex; align-items:center; justify-content:center;">
+        <img src="assets/linea-viva.jpg" alt="Linea Viva — performer at laptop console drawing into a canvas with a light-pen; projected contour lines glow against a deep blue field" style="display:block; max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; border:1px solid var(--rule); background:#000;" />
+      </figure>
+      <div class="col gap-item center-y" style="flex:1; min-width:0;">
+        <p class="body">
+          <!-- [TODO: linea-viva-draft] — Fede's draft / context, user will provide -->
+          <span class="t-faint">[TODO · placeholder — awaiting Fede's draft.]</span>
+        </p>
+        <div class="row gap-32" style="flex-wrap:wrap; margin-top:8px;">
+          <span class="tag amber">accepted · ACM C&amp;C 2026</span>
+        </div>
+        <div class="cap" style="margin-top:14px;">URL forthcoming</div>
+      </div>
+    </div>
+    <div class="source"><span class="lbl">C&amp;C</span><a href="https://cc.acm.org/2026/demos/">cc.acm.org/2026/demos</a></div>
+  </div>
+</section>
+
+<!-- S29 — sent(i)ence — removed per user request -->
+
+<!-- =====================================================================
+     S29 — tricity-flux.xyz
+     ===================================================================== -->
+<section data-label="29 tricity-flux" data-section="Current Research" data-section-num="06">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">06</span><span class="slug">Current Research</span></div>
+    <div class="corner bl">29 / tricity-flux.xyz</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <p class="eyebrow">06E · with Christian Berg + Bin Youn</p>
+    <h2 class="h-title">tricity-flux.xyz<span class="t-cyan">.</span></h2>
+
+    <div class="row gap-64" style="flex:1; align-items:stretch; margin-top:32px; min-height:0;">
+      <figure style="flex:0.5; margin:0; min-height:0; display:flex; align-items:center; justify-content:center;">
+        <img src="assets/tricity-flux.jpg" alt="tricity-flux — stacked stills: point cloud figure, object-detection bounding boxes over abstracted scene, particle explosion" style="display:block; max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; border:1px solid var(--rule); background:#000;" />
+      </figure>
+      <div class="col gap-item center-y" style="flex:1; min-width:0;">
+        <p class="body wide">
+          Triangulating urban change through <strong>pixel-to-particle translation</strong>:
+          a triangular prism installation exploring Ho Chi Minh City through point cloud
+          aesthetics and particle simulation.
+        </p>
+        <div class="row gap-32" style="flex-wrap:wrap; margin-top:8px;">
+          <span class="tag amber">submitted · Ars Electronica Expanded 2026</span>
+        </div>
+        <div class="cap" style="margin-top:14px;">
+          → <a href="https://tricity-flux.xyz/" target="_blank" rel="noopener" style="color:var(--cyan); text-decoration:none;">tricity-flux.xyz</a>
+        </div>
+      </div>
+    </div>
+    <div class="source"><span class="lbl">WEB</span><a href="https://tricity-flux.xyz/">tricity-flux.xyz</a></div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Mycortex (with Zhiqi Wang)
+     ===================================================================== -->
+<section data-label="29 Mycortex" data-section="Current Research" data-section-num="06">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">06</span><span class="slug">Current Research</span></div>
+    <div class="corner bl">29 / Mycortex</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <p class="eyebrow amber">06F · with Zhiqi Wang</p>
+    <h2 class="h-title" style="max-width:1620px;">
+      Mycortex<span class="t-amber">.</span><br/>
+      <span class="t-mute" style="font-size:0.55em;">Non-human symbolic communication through art and bioelectric signals.</span>
+    </h2>
+
+    <div class="row gap-64" style="flex:1; align-items:stretch; margin-top:32px; min-height:0;">
+      <figure style="flex:1.3; margin:0; min-height:0; display:flex; align-items:center; justify-content:center;">
+        <img src="assets/mycortex.png" alt="Mycortex installation — forest setting with projected light symbol on the left and a hand touching electrode-wired mushrooms on the forest floor on the right" style="display:block; max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; border:1px solid var(--rule);" />
+      </figure>
+      <div class="col gap-item center-y" style="flex:1; min-width:0;">
+        <p class="body">
+          An interactive installation juxtaposing <strong>fungal electrical signals</strong>
+          with <strong>human brainwaves</strong> — transforming both into non-narrative
+          language and symbols. A “third space” for interspecies translation,
+          non-anthropocentric, posthuman.
+        </p>
+        <div class="row gap-32" style="flex-wrap:wrap; margin-top:8px;">
+          <span class="tag amber">ARTECH 2025 · Braga, Portugal</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="source"><span class="lbl">DOI</span><a href="https://dl.acm.org/doi/10.1145/3773699.3773722">dl.acm.org/doi/10.1145/3773699.3773722</a></div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Machine perception statement
+     ===================================================================== -->
+<section data-label="29 Machine perception" data-section="Current Research" data-section-num="06">
+  <div class="slide-pad content center-y">
+    <div class="corner tr"><span class="sect-num">06</span><span class="slug">Current Research</span></div>
+    <div class="corner bl">29 / Machine perception</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <div style="max-width:1620px;">
+      <p class="eyebrow">What ties it all together</p>
+      <p class="h-quote">
+        My current work moves toward <span class="t-cyan">machine perception</span> —
+        how computational systems see, classify, distort, and respond to human presence —
+        and how <span class="t-amber">artistic research</span> can hold that conversation honestly.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Section 07 divider · AI
+     ===================================================================== -->
+<section data-label="29 §07 AI" data-section="AI · The Tool" data-section-num="07">
+  <div class="sketch-bg" data-sketch="attractor" style="opacity:0.45;"></div>
+  <div class="divider">
+    <div class="corner tr"><span class="sect-num">07</span><span class="slug">AI · The Tool</span></div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+    <div></div>
+    <div class="midline">
+      <div class="num amber">07</div>
+      <div class="title-wrap">
+        <div class="kicker">— Section · A personal reading</div>
+        <div class="name">AI: the tool<br/><span class="t-mute">I was</span><br/>waiting for<span class="t-amber">.</span></div>
+      </div>
+    </div>
+    <div></div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Coming from computer music
+     ===================================================================== -->
+<section data-label="29 Not a rupture" data-section="AI · The Tool" data-section-num="07">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">07</span><span class="slug">AI · The Tool</span></div>
+    <div class="corner bl">29 / Not a rupture</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <p class="eyebrow">A long tradition continued</p>
+    <h2 class="h-title" style="max-width:1620px;">
+      Coming from computer music, AI did not feel like a rupture.<br/>
+      It felt like <span class="t-amber">an extension</span>.
+    </h2>
+
+    <div class="fill"></div>
+    <p class="body wide">
+      Using unfamiliar systems, non-conventional methods, algorithms, randomness,
+      synthesis, and computation to move beyond conventional musical thinking —
+      that is exactly what electroacoustic practice has always done.
+    </p>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Tony Stark moment
+     ===================================================================== -->
+<section data-label="29 Tony Stark moment" data-section="AI · The Tool" data-section-num="07">
+  <div class="slide-pad content center-y">
+    <div class="corner tr"><span class="sect-num">07</span><span class="slug">AI · The Tool</span></div>
+    <div class="corner bl">29 / The Tony Stark moment</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <div style="max-width:1620px;">
+      <p class="eyebrow amber">Honestly</p>
+      <p class="h-quote">
+        When these AI tools appeared, I felt something close to a
+        <span class="t-amber">Tony Stark moment</span>. Things I could not previously do —
+        because of time, technical limitation, or lack of specific knowledge —
+        suddenly became <span class="t-cyan">prototypable</span>.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — The danger
+     ===================================================================== -->
+<section data-label="29 The danger" data-section="AI · The Tool" data-section-num="07">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">07</span><span class="slug">AI · The Tool</span></div>
+    <div class="corner bl">29 / The danger</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <p class="eyebrow">But — and it is a serious but</p>
+    <h2 class="h-title" style="max-width:1620px;">
+      The danger is not <span class="t-faint">only</span> ethical.<br/>
+      It is <span class="t-amber">cognitive and artistic</span>.
+    </h2>
+
+    <div class="fill"></div>
+    <p class="h-subtitle italic" style="max-width:1500px; color:var(--fg-2);">
+      When everything becomes possible,<br/>
+      <span class="t-cyan">direction becomes harder</span>.
+    </p>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Filter, judge, select, direct
+     ===================================================================== -->
+<section data-label="29 Filter, judge, select" data-section="AI · The Tool" data-section-num="07">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">07</span><span class="slug">AI · The Tool</span></div>
+    <div class="corner bl">29 / Stronger judgement</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <p class="eyebrow amber">The shift</p>
+    <h2 class="h-title">The question is no longer <span class="t-faint">how to use the tools.</span><br/>
+      It is <span class="t-amber">how to filter, judge, select, direct</span>.
+    </h2>
+
+    <div class="fill"></div>
+
+    <div class="split-2">
+      <div class="col gap-item">
+        <div class="mono" style="font-size:18px; color:var(--cyan); letter-spacing:0.14em; text-transform:uppercase;">For experienced practitioners</div>
+        <div class="body">AI accelerates prototyping. It compresses time-to-trying.</div>
+      </div>
+      <div class="col gap-item">
+        <div class="mono" style="font-size:18px; color:var(--amber); letter-spacing:0.14em; text-transform:uppercase;">For young makers</div>
+        <div class="body">Without strong fundamentals, infinite possibility becomes overwhelming. AI needs <strong>stronger</strong> artistic judgement, not weaker.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Section 08 divider · 50/50
+     ===================================================================== -->
+<section data-label="29 §08 50/50" data-section="The 50/50 Principle" data-section-num="08">
+  <div class="slide-pad content center-y">
+    <div class="corner tr"><span class="sect-num">08</span><span class="slug">The 50/50 Principle</span></div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <p class="eyebrow" style="text-align:center; margin-bottom:64px;">Section 08 · A working equation</p>
+    <div class="equation" style="text-align:center;">
+      <span class="a">50% concept</span> <span class="op">+</span> <span class="b">50% technical skill</span><br/>
+      <span class="op" style="margin: 28px 0; display:inline-block;">=</span><br/>
+      <span class="res italic">creative agency.</span>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — 50/50 explanation
+     ===================================================================== -->
+<section data-label="29 Thinker-doer" data-section="The 50/50 Principle" data-section-num="08">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">08</span><span class="slug">The 50/50 Principle</span></div>
+    <div class="corner bl">29 / Think through making</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <p class="eyebrow">Why both halves matter</p>
+    <h2 class="h-title">The artist of the AI era<br/>must be a <span class="t-amber">thinker-doer</span>.</h2>
+
+    <div class="fill"></div>
+
+    <div class="split-2">
+      <div class="col gap-item">
+        <div class="mono" style="font-size:18px; color:var(--cyan); letter-spacing:0.14em; text-transform:uppercase;">Concept without technique</div>
+        <div class="body t-mute">— often stays abstract.</div>
+      </div>
+      <div class="col gap-item">
+        <div class="mono" style="font-size:18px; color:var(--amber); letter-spacing:0.14em; text-transform:uppercase;">Technique without concept</div>
+        <div class="body t-mute">— often becomes empty demonstration.</div>
+      </div>
+    </div>
+
+    <hr class="rule" style="margin: 56px 0 32px;" />
+    <p class="h-subtitle italic" style="max-width:1500px;">
+      The future belongs to people who can <span class="t-cyan">think through making</span>.
+    </p>
+
+    <div class="source"><span class="lbl">REF</span>Steve Jobs on "doers" — <em>source needed</em>.</div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Section 09 divider · Quantum
+     ===================================================================== -->
+<section data-label="29 §09 Quantum" data-section="Quantum Horizon" data-section-num="09">
+  <div class="sketch-bg" data-sketch="quantum" style="opacity:0.55;"></div>
+  <div class="divider">
+    <div class="corner tr"><span class="sect-num">09</span><span class="slug">Quantum Horizon</span></div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+    <div></div>
+    <div class="midline">
+      <div class="num">09</div>
+      <div class="title-wrap">
+        <div class="kicker">— Section · Speculative but grounded</div>
+        <div class="name">Quantum<br/><span class="t-mute">horizon</span><span class="t-cyan">.</span></div>
+      </div>
+    </div>
+    <div></div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Quantum metaphors
+     ===================================================================== -->
+<section data-label="29 Quantum metaphors" data-section="Quantum Horizon" data-section-num="09">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">09</span><span class="slug">Quantum Horizon</span></div>
+    <div class="corner bl">29 / Metaphors, not only speed</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <p class="eyebrow">I am not pretending to be an expert</p>
+    <h2 class="h-title">For artists, quantum is not only about <span class="t-faint">speed</span>.</h2>
+
+    <div class="fill"></div>
+
+    <div class="split-asym">
+      <div>
+        <ul class="bullets">
+          <li>New conceptual models for <strong>multiplicity</strong>.</li>
+          <li>New tools for <strong>uncertainty</strong>.</li>
+          <li>New ways of <strong>non-binary thinking</strong>.</li>
+          <li>Simultaneity and superposition as compositional metaphors.</li>
+        </ul>
+      </div>
+      <div class="col gap-item center-y">
+        <p class="h-subtitle italic" style="max-width:580px;">
+          Quantum may give us<br/>
+          <span class="t-cyan">new metaphors</span><br/>
+          for thinking about reality,<br/>
+          uncertainty, and composition.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Section 10 divider · Indonesia
+     ===================================================================== -->
+<section data-label="29 §10 Indonesia" data-section="Indonesia · Where are we now?" data-section-num="10">
+  <div class="divider">
+    <div class="corner tr"><span class="sect-num">10</span><span class="slug">Indonesia · Where are we now?</span></div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+    <div></div>
+    <div class="midline">
+      <div class="num amber">10</div>
+      <div class="title-wrap">
+        <div class="kicker">— Section · Honest, not cynical</div>
+        <div class="name">Where are<br/><span class="t-mute">we now</span><br/>in Indonesia<span class="t-amber">?</span></div>
+      </div>
+    </div>
+    <div></div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Potential is not ecosystem
+     ===================================================================== -->
+<section data-label="29 Potential ≠ ecosystem" data-section="Indonesia · Where are we now?" data-section-num="10">
+  <div class="slide-pad content center-y">
+    <div class="corner tr"><span class="sect-num">10</span><span class="slug">Indonesia · Where are we now?</span></div>
+    <div class="corner bl">29 / Potential ≠ ecosystem</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <div style="max-width:1620px;">
+      <p class="eyebrow amber">Opening claim</p>
+      <p class="h-quote">
+        Indonesia is full of creative potential.<br/>
+        <span class="t-amber">But potential alone is not an ecosystem.</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Fragmented infrastructure
+     ===================================================================== -->
+<section data-label="29 Fragmented" data-section="Indonesia · Where are we now?" data-section-num="10">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">10</span><span class="slug">Indonesia · Where are we now?</span></div>
+    <div class="corner bl">29 / Infrastructure gaps</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <p class="eyebrow">The shape of the gap</p>
+    <h2 class="h-title">Talent is here. The <span class="t-cyan">system</span> around it is still being built.</h2>
+
+    <div class="fill"></div>
+
+    <div class="split-2" style="row-gap:32px;">
+      <ul class="bullets">
+        <li>Higher education is fragmented and uneven.</li>
+        <li>Research culture still maturing.</li>
+        <li>Long-term mentorship under-resourced.</li>
+      </ul>
+      <ul class="bullets amber">
+        <li>Internationalisation only partially integrated.</li>
+        <li>Peer-review culture not yet critical mass.</li>
+        <li>Ecosystem-building treated as optional.</li>
+      </ul>
+    </div>
+
+    <div class="source" style="font-size:14px;">
+      <span><a href="https://www.intechopen.com/chapters/86650">intechopen.com/chapters/86650</a></span>
+      <span><a href="https://www.reuters.com/business/media-telecom/indonesia-targets-foreign-investment-with-new-ai-roadmap-official-says-2025-07-22/">reuters.com · Indonesia AI roadmap (2025)</a></span>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Self-actualisation vs ecosystem
+     ===================================================================== -->
+<section data-label="29 Self-actualisation" data-section="Indonesia · Where are we now?" data-section-num="10">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">10</span><span class="slug">Indonesia · Where are we now?</span></div>
+    <div class="corner bl">29 / The mental transition</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <p class="eyebrow">A delicate point</p>
+    <h2 class="h-title">Scholarships are <span class="t-cyan">opportunities</span>,<br/>not <span class="t-faint">end-states</span>.</h2>
+
+    <div class="fill"></div>
+
+    <div class="split-2">
+      <div class="col gap-item">
+        <div class="mono" style="font-size:18px; color:var(--fg-3); letter-spacing:0.14em; text-transform:uppercase;">The phase many get stuck in</div>
+        <p class="h-subtitle italic t-mute">"I can study overseas."</p>
+      </div>
+      <div class="col gap-item">
+        <div class="mono" style="font-size:18px; color:var(--amber); letter-spacing:0.14em; text-transform:uppercase;">The deeper goal</div>
+        <p class="h-subtitle italic">"I am here to build <span class="t-amber">knowledge, discipline, methods, ethics, and an ecosystem</span>."</p>
+      </div>
+    </div>
+
+    <div class="source" style="font-size:14px;">
+      <span><a href="https://www.reuters.com/world/asia-pacific/indonesia-eyes-sovereign-ai-fund-drive-development-document-shows-2025-08-11/">reuters.com · sovereign AI fund</a></span>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Tall poppy + closing question
+     ===================================================================== -->
+<section data-label="29 Tall poppy" data-section="Indonesia · Where are we now?" data-section-num="10">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">10</span><span class="slug">Indonesia · Where are we now?</span></div>
+    <div class="corner bl">29 / Tall poppy</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <p class="eyebrow amber">A careful note</p>
+    <h2 class="h-title">A healthy ecosystem<br/>does not <span class="t-amber">cut down</span> expertise.</h2>
+
+    <div class="fill"></div>
+
+    <div class="split-asym">
+      <div class="body wide">
+        In some contexts, people who stand out are treated as threats rather than assets.
+        This prevents expertise from growing.
+      </div>
+      <div class="col gap-item center-y">
+        <p class="h-subtitle italic" style="max-width:620px;">
+          The question is not whether Indonesia has creative talent.<br/>
+          <span class="t-amber">It does.</span><br/><br/>
+          The question is whether we can build the systems, cultures, and institutions
+          that allow that talent to <span class="t-cyan">mature into expertise</span>.
+        </p>
+      </div>
+    </div>
+
+    <div class="source" style="font-size:14px;">
+      <span><a href="https://www.reuters.com/world/asia-pacific/students-lead-dark-indonesia-protests-against-budget-cuts-2025-02-20/">reuters.com · "Dark Indonesia" protests (2025)</a></span>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Final closing reflection (converging p5)
+     ===================================================================== -->
+<section data-label="29 Closing reflection" data-section="Closing" data-section-num="11">
+  <div class="sketch-bg" data-sketch="converging" style="opacity:0.55;"></div>
+  <div class="slide-pad content center-y">
+    <div class="corner tr"><span class="sect-num">11</span><span class="slug">Closing</span></div>
+    <div class="corner bl">29 / Closing reflection</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <div style="max-width:1620px;">
+      <p class="eyebrow">Where this leaves us</p>
+      <p class="h-quote">
+        We are entering a moment where sound, image, text, AI, and computation
+        are <span class="t-faint">no longer separate tools</span>. They are becoming
+        <span class="t-cyan">one expanded field of creative systems</span>.<br/><br/>
+        The task for artists is not only to use these systems — but to
+        <span class="t-amber">understand them, question them, and compose with them responsibly</span>.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Final statement
+     ===================================================================== -->
+<section data-label="29 Final statement" data-section="Closing" data-section-num="11">
+  <div class="sketch-bg" data-sketch="converging" style="opacity:0.32;"></div>
+  <div class="slide-pad content center-y">
+    <div class="corner tr"><span class="sect-num">11</span><span class="slug">Closing</span></div>
+    <div class="corner bl">29 / Final statement</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <div style="text-align:center;">
+      <p class="eyebrow amber" style="margin-bottom:80px;">— Final statement —</p>
+      <h1 class="h-display serif italic" style="font-size:172px; line-height:1.02;">
+        Do not only<br/>
+        use the tool.<br/>
+        <span class="t-amber">Compose the system.</span>
+      </h1>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — References & sources
+     ===================================================================== -->
+<section data-label="29 References" data-section="References" data-section-num="12">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">12</span><span class="slug">References &amp; Sources</span></div>
+    <div class="corner bl">29 / References</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <p class="eyebrow">All sources referenced in this deck</p>
+
+    <div class="ref-list" style="margin-top:32px;">
+      <div class="ref-head">Public profile</div>
+      <div><a href="https://www.rmit.edu.vn/profiles/h/patrick-hartono">rmit.edu.vn/profiles/h/patrick-hartono</a></div>
+      <div><a href="https://www.gold.ac.uk/computing/people/hartono-patrick/">gold.ac.uk/computing/people/hartono-patrick</a></div>
+      <div><a href="https://calls.ircam.fr/profiles/individual/7315/">calls.ircam.fr/profiles/individual/7315</a></div>
+      <div><a href="https://extended.asia/contributor/patrick-hartono-v3/">extended.asia/contributor/patrick-hartono-v3</a></div>
+      <div><a href="https://dac.siggraph.org/person/patrick-hartono/">dac.siggraph.org/person/patrick-hartono</a></div>
+
+      <div class="ref-head">Selected venues &amp; publications</div>
+      <div><a href="https://ars.electronica.art/panic/en/view/listening-room-22338ddb450c806d9e78ce1bc989b181/">ars.electronica.art · Listening Room</a></div>
+      <div><a href="https://lac.linuxaudio.org/2019/">lac.linuxaudio.org/2019</a></div>
+      <div><a href="https://www.jar-online.net/journal-artistic-research">jar-online.net</a></div>
+      <div><a href="https://dac.siggraph.org/sparks/2026-01-23_beyond-the-global-north/">dac.siggraph.org/sparks/2026</a></div>
+      <div><a href="https://nime.org/proc/nime2025_22/index.html">nime.org/proc/nime2025_22</a></div>
+      <div><a href="https://www.cambridge.org/core/journals/organised-sound/article/soundscapes-of-papua-culturalbased-pedagogical-approach-through-electroacoustic-music/BA0932CA4284AA343707FED17F7B45AC">cambridge.org · Soundscapes of Papua</a></div>
+      <div><a href="https://www.cambridge.org/core/journals/organised-sound/article/algorave-music-practice-in-indonesia-paguyuban-algorave/08D716E4823D973E1B22A04C4B781ADF">cambridge.org · Paguyuban Algorave (OS 28/2, 2023)</a></div>
+
+      <div class="ref-head">Case studies</div>
+      <div><a href="https://www.nime.org/proc_music/nime2024_music_45/index.html">nime.org/proc_music/nime2024_music_45 (Ciung Wanara)</a></div>
+      <div><a href="https://beast.cal.bham.ac.uk/beast-feast-2025/programme/saturday-3-may/">beast.cal.bham.ac.uk/beast-feast-2025</a></div>
+
+      <div class="ref-head">Current research · conferences</div>
+      <div><a href="https://cc.acm.org/2026/demos/">cc.acm.org/2026/demos</a></div>
+      <div><a href="https://dl.acm.org/doi/10.1145/3773699.3773722">dl.acm.org/doi/10.1145/3773699.3773722 (Mycortex · ARTECH 2025)</a></div>
+
+      <div class="ref-head">Indonesia context</div>
+      <div><a href="https://www.intechopen.com/chapters/86650">intechopen.com/chapters/86650</a></div>
+      <div><a href="https://www.reuters.com/business/media-telecom/indonesia-targets-foreign-investment-with-new-ai-roadmap-official-says-2025-07-22/">reuters.com · AI roadmap (2025)</a></div>
+      <div><a href="https://www.reuters.com/world/asia-pacific/indonesia-eyes-sovereign-ai-fund-drive-development-document-shows-2025-08-11/">reuters.com · sovereign AI fund (2025)</a></div>
+      <div><a href="https://www.reuters.com/world/asia-pacific/students-lead-dark-indonesia-protests-against-budget-cuts-2025-02-20/">reuters.com · "Dark Indonesia" protests (2025)</a></div>
+
+      <div class="ref-head">Theoretical reference</div>
+      <div>Chion, M. (1994). <em>Audio-Vision: Sound on Screen</em>. Columbia UP.</div>
+      <div>Steve Jobs on "doers" — <span style="color:var(--amber);">source needed</span>.</div>
+
+      <div class="ref-head">Unverified / forthcoming</div>
+      <div>Hartono, P. <em>Intermediality Beyond Synchronisation</em> · Organised Sound · <span style="color:var(--amber);">under final review</span></div>
+      <div>Gorgon Loop (Li &amp; Hartono) · SIGGRAPH 2026 · <span style="color:var(--amber);">final URL forthcoming</span></div>
+      <div>Onycho Lab (Zhang &amp; Hartono) · ACM C&amp;C 2026 · <span style="color:var(--amber);">URL forthcoming</span></div>
+      <div>tricity-flux.xyz · Ars Electronica Expanded 2026 · <span style="color:var(--amber);">submitted</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     S29 — Q&A / Thank you
+     ===================================================================== -->
+<section data-label="29 Q&A" data-section="Q&amp;A · Thank you" data-section-num="13">
+  <div class="slide-pad content">
+    <div class="corner tr"><span class="sect-num">13</span><span class="slug">Q&amp;A · Thank you</span></div>
+    <div class="corner bl">29 / Q&amp;A</div>
+    <div class="corner br mono"><span class="t-mute">29 / 49</span></div>
+
+    <div class="row gap-80" style="flex:1; align-items:center; padding-bottom:48px;">
+      <div class="col gap-item" style="flex:1.4; min-width:0;">
+        <p class="eyebrow amber">Now</p>
+        <h1 class="h-display" style="font-size:128px; line-height:1.02;">
+          Terima kasih<span class="t-amber">.</span><br/>
+          <span class="t-mute" style="font-size:0.42em; letter-spacing:0.02em;">— and now, your questions.</span>
+        </h1>
+
+        <div class="mono" style="margin-top:40px; font-size:19px; color:var(--fg-2); line-height:1.65;">
+          <div><span class="t-cyan">→ profile&nbsp;&nbsp;&nbsp;&nbsp;</span><a href="https://www.rmit.edu.vn/profiles/h/patrick-hartono" style="color:inherit;">rmit.edu.vn/profiles/h/patrick-hartono</a></div>
+          <div><span class="t-cyan">→ archive&nbsp;&nbsp;&nbsp;&nbsp;</span><a href="https://extended.asia/contributor/patrick-hartono-v3/" style="color:inherit;">extended.asia/contributor/patrick-hartono-v3</a></div>
+          <div><span class="t-cyan">→ DAC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><a href="https://dac.siggraph.org/person/patrick-hartono/" style="color:inherit;">dac.siggraph.org/person/patrick-hartono</a></div>
+          <div style="margin-top:10px;"><span class="t-amber">→ linkedin&nbsp;&nbsp;</span><a href="https://www.linkedin.com/in/patrick-hartono-84111486/" style="color:inherit;">linkedin.com/in/patrick-hartono-84111486</a></div>
+          <div><span class="t-amber">→ instagram&nbsp;</span><a href="https://www.instagram.com/patrick_hartono/" style="color:inherit;">instagram.com/patrick_hartono</a></div>
+        </div>
+      </div>
+      <div class="col" style="flex:1; align-items:center; justify-content:center;">
+        <a href="https://www.rmit.edu.vn/profiles/h/patrick-hartono" target="_blank" rel="noopener" style="display:block; line-height:0;">
+          <img src="assets/qr-rmit.png" alt="QR code linking to RMIT profile of Patrick Hartono" style="width:300px; height:300px; display:block; background:#fff; padding:14px; border:1px solid var(--fg-3); box-sizing:content-box;" />
+        </a>
+        <div class="cap" style="text-align:center; margin-top:16px;">
+          <span class="t-cyan">scan</span> → rmit profile
+        </div>
+        <div class="mono" style="margin-top:18px; font-size:13px; letter-spacing:0.14em; text-transform:uppercase; color:var(--fg-3); text-align:center;">
+          also on <span class="t-amber">linkedin</span> · <span class="t-amber">instagram</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</deck-stage>
+
+<!-- Speaker notes — positional, in slide order -->
+<script type="application/json" id="speaker-notes">
+[
+  "Good evening, and thank you to Universitas Bunda Mulia for the invitation. My name is Patrick Hartono. I want to begin in a quiet, almost embarrassing way: I am not going to give you a tech talk. I am going to give you a kind of long, honest conversation about how I ended up working at the place where sound, image, computation, and now AI overlap. Tonight I will move through some of my works, some of my collaborators, some of my doubts, and at the end I want to ask a difficult question about Indonesia. So — settle in. Forty-five minutes, around forty-eight slides, and a lot of room for questions at the end.",
+
+  "I want to introduce myself, but not in the CV sense. I was born in Makassar. I trained as a composer, but somewhere along the way I stopped composing only music and started composing something else — systems. Sound systems, visual systems, interactive systems, and now intelligent systems. So when you see the words composer, audiovisual artist, new media artist, researcher on the screen, please read them as the same person trying to make sense of one practice from different angles. I want this lecture to feel like a conversation with a senior friend, not a keynote, so feel free to interrupt me later.",
+
+  "This is the map, not the CV. I went from Rotterdam — Codarts, with a minor in Sonology — to Goldsmiths in London for my MMus in Sonic Arts. Then a live electronics course at IRCAM in Paris, then a PhD at the University of Melbourne in interactive composition, then back to Goldsmiths as a lecturer in Computational Arts, and now I am in Ho Chi Minh City at RMIT Vietnam, teaching Digital Media Interaction. I tell you this not as a brag. I tell you this because the thread that ties all of it together is one question: what does it actually mean to compose with a system, not just with notes?",
+
+  "I want to put this slide up once, then never again, because it can sound like self-promotion. This is just context — verifiable footholds. Hutan Plastik was in the Ars Electronica Listening Room. I have presented work at the Linux Audio Conference at Stanford CCRMA. I have editorial engagement with the Journal for Artistic Research. I am on the SIGGRAPH DAC profile and involved in SPARKS 2026. The Harmonix paper is in NIME 2025. And there's an Organised Sound article on Soundscapes of Papua. These are the markers that locate me in the international conversation. Now we move on.",
+
+  "Section three. From sound, to computational arts. I want to share how I personally came to this field — not a textbook history. Computational arts is a phrase that is sometimes used too easily. I want to be specific about what it actually meant in my life.",
+
+  "Here is the framing. Computer music trained me to think beyond conventional musical notation. Notation is a beautiful technology, but it is also a limit. When you compose with systems, processes, algorithms, spatial sound, synthesis, interaction, and uncertainty — you stop thinking about notes on a page, and you start thinking about how a system behaves, what it does, who hears it, and where they hear it. That shift is the heart of what I want to share tonight.",
+
+  "First material: sound. In electroacoustic practice, sound is not a representation of something — it is the something. We compose with recorded, synthesised, and processed sound directly. Sonology then taught me to take this further: sound is structure, sound is space, sound is perception. And in spatial sound, composition extends out of the speaker and into the room. The Schaeffer question still matters to me: not what does this sound mean, but what does this sound actually do?",
+
+  "Second material: image. The same shift happens. Image stops being a surface you decorate and becomes a behaviour you compose. Generative visuals: an image is the running of a process. TouchDesigner and real-time systems: a live performance is a dataflow you sculpt in time. VR and game technology: space itself becomes interactive composition. Once you start to think this way, sound and image stop being separate disciplines. They are both behaviours of computational systems.",
+
+  "Third material: body and intelligence. My PhD at Melbourne was about myth, body, gesture, and interactive audiovisual composition — performers and machines as co-compositional agents. Now at RMIT, I am working on AI, text, perception, machine learning, and intermediality. What machines hear, see, classify, and respond to — and what that does to a composition. The trajectory isn't linear; it's accumulative. Nothing got dropped. Everything became material.",
+
+  "If you take only one definition home tonight, take this one. Computational arts is not simply art made with computers. Anyone with a laptop makes art with a computer. Computational arts is a way of composing systems — sound systems, visual systems, interactive systems, social systems, and, now, intelligent systems. The artist is not the operator of the tool. The artist is the composer of the system itself. That distinction is the entire lecture, in one sentence.",
+
+  "Section four. Added value. This is the conceptual ground for almost all of my audiovisual work, and I want to be careful in how I introduce it.",
+
+  "The phrase comes from Michel Chion, the French theorist of film sound. His core observation: sound does not simply accompany image. Sound can transform what an image appears to mean. Two people walking down a street, with cheerful music, is a romantic comedy. The same image with low drones is a thriller. Meaning emerges between perception, image, sound, and context. The audiovisual contract is productive — not additive. That insight changed how I composed everything.",
+
+  "Now my extension. In my work, added value is not only sound enriching image. Added value becomes a compositional condition. And — this is the part that took me years to articulate — text can also be one of those agents. Sound, image, and text reorganise each other in perception. Text is not subtitle. Text is not caption. Text is not explanation. Text can be a compositional voice next to sound and image. That three-way contract is what I am exploring now.",
+
+  "I am writing about this in a manuscript currently under final review at Organised Sound. The title is 'Intermediality Beyond Synchronisation: Text as a Compositional Agent in Electroacoustic Audiovisual Performance.' I want to be clear: it is not published yet. There is no DOI. I will not pretend otherwise. But the argument is alive in the work I will show you next.",
+
+  "Section five. Four works. I want to walk you through four case studies — Ciung Wanara, Hutan Plastik, F2, and Harmonix Series — because they each illustrate one move in my trajectory: from interactive composition, to ecological audiovisual, to text-as-agent, to accessibility and care.",
+
+  "Ciung Wanara. This came out of my PhD research. It is an interactive audiovisual composition inspired by Indonesian shadow puppet battle — a mythic-cultural source very close to me. The performers control rooster avatars through gesture. The system listens, watches, and responds. What changed for me here was simple: I stopped composing fixed audiovisual material, and started composing audiovisual behaviour. The composition is what the system does in the moment.",
+
+  "Here is a video — you'll see the gestural interaction live. Notice how the system is not synchronising sound to image after the fact; the performer's body is co-composing with it in real time. This is the transition from sound-image composition toward embodied audiovisual systems. That phrase 'embodied audiovisual systems' will return in several other works tonight.",
+
+  "Hutan Plastik. The title means Plastic Forest. This is an electroacoustic and audiovisual work concerned with forest destruction, West Papua, palm oil — environmental memory at scale. It was shown in the Ars Electronica Listening Room, which is itself a deeply contemplative listening context. I want to be honest: this work was a turning point for me. It is where I let my practice become explicitly political and ecological, and stopped pretending art is neutral.",
+
+  "What I want you to take from Hutan Plastik is that electroacoustic listening, visual imagination, and ecological anxiety can be held together — not as a campaign, not as a message — but as a perceptual experience that asks the listener to sit with what is happening to a forest. That is what audiovisual practice can do when it refuses to be only entertainment.",
+
+  "F2. This is the work most directly connected to my Organised Sound manuscript. F2 explores text as a compositional agent. Sound, image, and text do not need to be synchronised in the audio-reactive way that has become a kind of default in audiovisual practice. Instead, text shapes perception. Text holds memory in the work. Text creates narrative tension. The paper is in final review, the manuscript is private — but the work itself is showable.",
+
+  "If I had to compress the F2 argument into one sentence: text does not describe the audiovisual work. Text composes how the audiovisual work is perceived. There is a difference between a label that tells you what something is, and a voice that re-tunes how you attend to what is in front of you. F2 is built on that difference.",
+
+  "Harmonix Series, with Wing Hei Cheryl Hui. This is at NIME 2025. It is about Accessible Digital Musical Instruments — DMIs for mindfulness and creativity. I want to mention this work specifically because it moves the practice toward accessibility, wellbeing, and public-facing interaction. Computational arts is sometimes accused of being elitist or only experimental. Harmonix is the answer to that accusation: computational arts can also design access, participation, and care. Those are not lesser concerns. They are the whole point.",
+
+  "Here is the actual NIME paper, embedded. I will not walk through it page by page tonight. I want to leave it as an artefact you can read later. The headline: we built instruments for people who would not normally pick up a digital musical instrument, and we designed the interaction around mindfulness rather than virtuosity. That is a design choice that came from collaboration with Cheryl, who is the lead voice in this work.",
+
+  "Section six. Current research. I want to show you that none of what I do is solo. I work with collaborators and students all the time. This next slide is a map.",
+
+  "Here is the network. Six active threads, all in 2026. Two with senior collaborators — Shuang Li, Zhiqi Wang. Two with people I am supervising or co-developing with — Fioretta Zhang, Federico. And one more with artists working at the edges of installation — Christian Berg with Bin Youn. I want to spend a minute on each one, because the only way to see how a research practice really works is to see it as a network, not a list.",
+
+  "Gorgon Loop, with Shuang Li. This is going to SIGGRAPH 2026 Art Papers — camera-ready submitted. The work is about algorithmic judgement: smart mirrors, collective social behaviour, what it feels like to be seen by a system that classifies you. It is an interactive art installation, but it is really a meditation on how machine perception is becoming part of public space.",
+
+  "Onycho Lab, with Fioretta Zhang. Going to ACM Creativity and Cognition 2026 as a demo paper — conditionally accepted, in final submission. It is about wearable fingertip prostheses: artificial nails as a bodily technology. The framing is feminist hapticism — what does it mean to extend the body in a way that has historically been read as decoration, but is actually a sensory and political surface? Fioretta is leading this and it is sharp work.",
+
+  "Linea Viva, with Federico. Recently accepted at ACM Creativity and Cognition 2026. I am going to keep this slide light tonight because Fede's draft is still being finalised, but the project sits in a space I find very interesting — the politics of line, gesture, and inscription in computational environments.",
+
+  "tricity-flux.xyz, with Christian Berg and Bin Youn. Submitted to Ars Electronica Expanded 2026. It triangulates urban change through pixel-to-particle translation — a triangular prism installation exploring Ho Chi Minh City through point cloud aesthetics and particle simulation. The city becomes a probability cloud you can walk around.",
+
+  "And Mycortex, with Zhiqi Wang. Published in ARTECH 2025, Braga, Portugal. Mycortex is an interactive installation that juxtaposes fungal electrical signals with human brainwaves, turning both into non-narrative language and symbols. It builds a kind of third space — a non-anthropocentric, posthuman space — where humans and fungi co-emit, and where art holds a question that science alone cannot: who, exactly, is entitled to speak?",
+
+  "If there is a single sentence that holds the network together, it is this. My current work moves toward machine perception — how computational systems see, classify, distort, and respond to human presence — and how artistic research can hold that conversation honestly. The word I want to underline is honestly. Not promotionally, not defensively. Honestly.",
+
+  "Section seven. AI. The tool I was waiting for. This is the most personal part of the talk, so I will slow down.",
+
+  "Here is something that may surprise you. When AI tools became widely available, I did not feel a rupture. I felt continuity. Because if you come from electroacoustic music, you have already spent years using unfamiliar systems, randomness, algorithms, synthesis, and computation to go beyond conventional musical thinking. AI is, in a way, more of the same — only faster, broader, and more linguistic.",
+
+  "And I want to be honest about the emotion of it. When these AI tools appeared, I felt something close to a Tony Stark moment. Things I could not previously do — because of time, because of technical limitation, because of lack of specific knowledge — suddenly became prototypable. That is not a small thing for an artist who has lived with constraint for two decades. I want to admit that excitement, because there is a tendency to perform suspicion about AI in academic settings, and I think that performance gets in the way of honesty.",
+
+  "But — and this is a serious but — the danger is not only ethical. We talk a lot about the ethics of AI, and we should. The danger I want to name tonight is different. It is cognitive and artistic. When everything becomes possible, direction becomes harder. The constraint is gone, and constraint is what gave many of us our artistic identity.",
+
+  "So the question is no longer how to use the tools. The question is how to filter, judge, select, and direct them. For experienced practitioners, AI accelerates prototyping — it compresses time-to-trying. For younger people without strong fundamentals, infinite possibility becomes overwhelming. AI does not require weaker artistic judgement. It requires stronger artistic judgement. I want to repeat that, because it is contrarian: stronger, not weaker.",
+
+  "Section eight. A working equation I keep returning to. Fifty per cent concept plus fifty per cent technical skill equals creative agency. I am not the first person to say something like this — Steve Jobs talked about doers — but I want to give it a slightly different shape.",
+
+  "Concept without technique often stays abstract — it sits in a thesis and never becomes a thing. Technique without concept often becomes empty demonstration — beautiful, hollow. The artist of the AI era has to be a thinker-doer. The future does not belong only to thinkers, and not only to technicians. It belongs to people who can think through making. That phrase — think through making — is what I try to teach.",
+
+  "Section nine. Quantum horizon. I want to be careful here. I am not a quantum computing expert and I will not pretend to be one. But I want to say one thing.",
+
+  "For artists, quantum computing is not only about speed. It is about new conceptual models for multiplicity, uncertainty, simultaneity, and non-binary thinking. Probability and superposition are not just mathematical objects — they are potentially compositional metaphors. We had to learn to think probabilistically when we adopted algorithmic composition. Quantum might give us another vocabulary for thinking about reality, uncertainty, and composition. I am watching it carefully, and I think you should too.",
+
+  "Section ten. Now the hard part. I want to talk honestly about Indonesia — the country I am from, the country I love, the country I am also critical of. I am not trying to be cynical. I am not anti-Indonesia. I am care-ful — full of care for the ecosystem.",
+
+  "Opening claim. Indonesia is full of creative potential. I have said this in many rooms. It is true. But potential alone is not an ecosystem. Potential without structure is a beautiful waste. I want to spend the next few slides on what is missing — and what is being built.",
+
+  "The shape of the gap. Talent is here. The system around it is still being built. Higher education is fragmented and uneven. Research culture is still maturing. Long-term mentorship is under-resourced. Internationalisation is only partially integrated. Peer-review culture has not yet reached critical mass. And ecosystem-building is still often treated as optional rather than essential. None of this is anyone's individual fault. It is structural.",
+
+  "Now a delicate point. International scholarships matter. They are real opportunities, and many of my own steps were paid for by them. But scholarships are opportunities, not end-states. I have watched people receive opportunities abroad and remain stuck in the self-actualisation phase — 'I can study overseas.' That phase is fine. But it is not the destination. The deeper goal — and the one I want to put on the table tonight — is: 'I am here to build knowledge, discipline, methods, ethics, and an ecosystem.' That sentence is hard to say in front of your own community, but I think it is necessary.",
+
+  "And finally, the careful note. A healthy ecosystem does not cut down expertise. In some contexts — and I am not pointing only at Indonesia here, this is a broader pattern — people who stand out are treated as threats rather than as assets. This is sometimes called tall poppy syndrome. It prevents expertise from growing. The question is not whether Indonesia has creative talent — it does. The question is whether we can build the systems, cultures, and institutions that allow that talent to mature into expertise. That is the work, and that is the work I want to invite you, the students in this room, to be part of.",
+
+  "Closing reflection. We are entering a moment where sound, image, text, AI, and computation are no longer separate tools. They are becoming one expanded field of creative systems. The task for artists is not only to use these systems. The task is to understand them, question them, and compose with them — responsibly. That word, responsibly, is doing a lot of work in that sentence, and I want you to hold onto it.",
+
+  "And so I will leave you with one line. Do not only use the tool. Compose the system. Thank you.",
+
+  "These are the sources behind everything I have shown tonight, in case you want to follow up. The unverified or forthcoming items are marked clearly. I am happy to point you to any of them after the talk.",
+
+  "Terima kasih. Thank you for listening. I am Patrick Hartono. The links are on the slide, including a QR code to my RMIT profile. And now — your questions. Please be tough. The good ones are the ones I do not have an answer to yet."
+]
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+<script src="deck-stage.js"></script>
+<script src="sketches.js"></script>
+
+</body>
+</html>

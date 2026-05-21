@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# bm-talk: source & draft files not used by the deck
+bm-talk/uploads/
+bm-talk/assets/extract/
+bm-talk/screenshots/
+
+# bm-talk: unused asset files (kept locally, not pushed)
+bm-talk/assets/f2-still.png
+bm-talk/assets/f2-performance.jpg
+bm-talk/assets/onycho-lab.jpg
