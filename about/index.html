@@ -10,258 +10,44 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="/css/site.css">
   </head>
-  <body>
-    <section class="scene" style="background:#0c0c10;" aria-label="Patrick Hartono — research data map">
-      <a class="scene-back" href="/">← Patrick Hartono</a>
-      <canvas id="node-graph" aria-hidden="true"></canvas>
+  <body class="about-page">
+    <div class="about-split">
 
-      <div class="scene-overlay">
-        <div class="who">About</div>
-        <div class="what">Practice at the centre — every discipline around it is something the work reached for.</div>
-        <div class="hint">Drag to rotate.</div>
+      <!-- LEFT: plexus -->
+      <div class="about-left">
+        <a class="about-back" href="/">← Patrick Hartono</a>
+        <canvas id="node-graph" aria-hidden="true"></canvas>
+        <span class="about-drag-hint">Drag to rotate</span>
       </div>
-    </section>
 
-    <main class="cv">
-      <article class="cv-section">
-        <h2>Bio</h2>
-        <div class="bio-body">
-          <p>
-            Patrick Hartono is a researcher and artist whose practice integrates technology and
-            computational methodologies to explore electroacoustic music, generative visuals,
-            embodied interaction, and human–AI co-creativity. He is a Lecturer in Digital Media
-            (Interaction) at RMIT Vietnam and previously taught Computational Arts at
-            Goldsmiths, University of London.
-          </p>
-          <p>
-            His PhD was awarded the Conservatorium Director's Award for Exceptional Doctoral
-            Research. His research has been published in leading journals including
-            <em>Organised Sound</em> and <em>Computer Music Journal</em>, as well as in
-            peer-reviewed conference proceedings such as ACM and NIME. Artistically, his works
-            fuse traditional Indonesian instruments, computer-generated sound, visuals, and
-            field recordings through mathematical structures, real-time interaction, and
-            controlled randomness, and have been recognised through international awards and
-            distinctions. These works have been presented internationally at festivals and
-            conferences including Ars Electronica, ICMC, IRCAM, ZKM, CCRMA, ISEA, and NIME.
-            He serves on the board of the International Computer Music Association and holds
-            leadership roles for NIME, ACM DIS, and ACM SIGGRAPH SPARK.
-          </p>
+      <!-- RIGHT: bio -->
+      <div class="about-right">
+        <div class="about-bio">
+          <span class="about-eyebrow">About</span>
+          <h1 class="about-name">Patrick Hartono</h1>
+          <div class="about-body">
+            <p>
+              Patrick Hartono is a researcher and artist whose practice integrates technology and
+              computational methodologies to explore electroacoustic music, generative visuals,
+              embodied interaction, and human–AI co-creativity. He is a Lecturer in Digital Media
+              (Interaction) at RMIT Vietnam and previously taught Computational Arts at
+              Goldsmiths, University of London.
+            </p>
+            <p>
+              His PhD was awarded the Conservatorium Director's Award for Exceptional Doctoral
+              Research. His research has been published in leading journals including
+              <em>Organised Sound</em> and <em>Computer Music Journal</em>, as well as in
+              peer-reviewed conference proceedings such as ACM and NIME. Artistically, his works
+              fuse traditional Indonesian instruments, computer-generated sound, visuals, and
+              field recordings through mathematical structures, real-time interaction, and
+              controlled randomness. These works have been presented internationally at
+              Ars Electronica, ICMC, IRCAM, ZKM, CCRMA, ISEA, and NIME.
+            </p>
+          </div>
         </div>
-      </article>
+      </div>
 
-      <article class="cv-section">
-        <h2>Research interests</h2>
-        <ul class="interest-list">
-          <li>Music Interaction</li>
-          <li>New Interfaces for Musical Expression (NIME)</li>
-          <li>Creative Machine Learning &amp; Generative AI</li>
-          <li>Expanded Cinema / Audiovisual</li>
-          <li>Electroacoustic / Acousmatic Music</li>
-          <li>Human–Computer Interaction (HCI)</li>
-          <li>Computational Visual Design</li>
-        </ul>
-      </article>
-
-      <article class="cv-section">
-        <h2>Education</h2>
-        <dl class="timeline">
-          <dt>2024</dt>
-          <dd>
-            <span class="title">PhD, Interactive Composition</span>
-            <span class="institution">University of Melbourne — Conservatorium Director's Award for Exceptional Doctoral Research.</span>
-          </dd>
-          <dt>2018</dt>
-          <dd>
-            <span class="title">MMus, Sonic Arts</span>
-            <span class="institution">Goldsmiths, University of London.</span>
-          </dd>
-          <dt>2016</dt>
-          <dd>
-            <span class="title">BMus, Composition (Cum Laude)</span>
-            <span class="institution">Codarts / Rotterdam Conservatorium; minor at Institute of Sonology, The Hague.</span>
-          </dd>
-          <dt>—</dt>
-          <dd>
-            <span class="title">Live Electronic Music Course</span>
-            <span class="institution">IRCAM, Paris — In Vivo Electro Live.</span>
-          </dd>
-        </dl>
-      </article>
-
-      <article class="cv-section">
-        <h2>Appointments</h2>
-        <dl class="timeline">
-          <dt>2025–now</dt>
-          <dd>
-            <span class="title">Lecturer in Digital Media (Interaction)</span>
-            <span class="institution">RMIT University Vietnam — HCI, Creative AI, interaction design.</span>
-          </dd>
-          <dt>2024–2025</dt>
-          <dd>
-            <span class="title">Lecturer in Computational Arts</span>
-            <span class="institution">Goldsmiths, University of London — creative coding, interactive systems.</span>
-          </dd>
-          <dt>2023</dt>
-          <dd>
-            <span class="title">Adjunct Lecturer in Music Technology</span>
-            <span class="institution">University of New England, Australia.</span>
-          </dd>
-          <dt>2022</dt>
-          <dd>
-            <span class="title">Technical Research Assistant</span>
-            <span class="institution">University of Applied Arts Vienna, Austria.</span>
-          </dd>
-        </dl>
-      </article>
-
-      <article class="cv-section">
-        <h2>Selected publications &amp; works</h2>
-        <ol class="pub-list">
-          <li>
-            <div class="pub-meta"><span class="year">2026</span><span class="pub-chip pub-chip--conference">Conference paper</span></div>
-            <div class="pub-title">Gorgon Loop: An Interactive Art Installation Revealing Algorithmic Judgment</div>
-            <div class="pub-venue">ACM SIGGRAPH 2026 Art Papers — Li, S. &amp; Hartono, P.</div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2026</span><span class="pub-chip pub-chip--conference">Conference paper</span></div>
-            <div class="pub-title">Peripersonal Modular Interfaces for Care Ecologies</div>
-            <div class="pub-venue">NIME 2026, London — Hui, W.H.C. &amp; Hartono, P.</div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2026</span><span class="pub-chip pub-chip--conference">Conference paper</span></div>
-            <div class="pub-title">Mycortex: Non-Human Symbolic Communication through Art and Bioelectric Signals</div>
-            <div class="pub-venue">ARTECH 2025 (ACM), Braga — Wang, Z. &amp; Hartono, P. · <a href="https://doi.org/10.1145/3773699.3773722" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2025</span><span class="pub-chip pub-chip--conference">Conference paper</span></div>
-            <div class="pub-title">Sonic Maze: Pressure-Sensitive Drawing as an Affective Sonic Practice</div>
-            <div class="pub-venue">CMMR 2025, UCL — Ciotti, F. &amp; Hartono, P. · <a href="https://doi.org/10.5281/zenodo.17497947" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2025</span><span class="pub-chip pub-chip--conference">Conference paper</span></div>
-            <div class="pub-title">A Practice-Based Methodology for Capturing Embodied Gesture–Rhythm Relations in Small Datasets</div>
-            <div class="pub-venue">AIMC 2025, Brussels — O'Donnell, E. &amp; Hartono, P. · <a href="https://doi.org/10.5281/zenodo.16955635" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2025</span><span class="pub-chip pub-chip--creative">Creative work</span></div>
-            <div class="pub-title">Hutan Plastik [Multichannel ambisonic]</div>
-            <div class="pub-venue">Listening Room, Ars Electronica, Linz · <a href="https://doi.org/10.25439/rmt.30448256" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2025</span><span class="pub-chip pub-chip--book">Book chapter</span></div>
-            <div class="pub-title">Chapter 5: Project and Perspective, Section 24 — Artist's Statement</div>
-            <div class="pub-venue">The SuperCollider Book, 2nd ed. — MIT Press</div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2025</span><span class="pub-chip pub-chip--journal">Journal article</span></div>
-            <div class="pub-title">Soundscapes of Papua: Cultural-based Pedagogy through Electroacoustic Music</div>
-            <div class="pub-venue">Organised Sound 30(1):32–40, Cambridge UP — Hartono, P., Sutanto, S.J., Nanlohy, R.I. · <a href="https://doi.org/10.1017/s1355771824000396" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2025</span><span class="pub-chip pub-chip--creative">Creative work</span></div>
-            <div class="pub-title">Ciung Wanara [Audiovisual performance]</div>
-            <div class="pub-venue">NIME 2024 — Harvard, Oxford, IRCAM, HKU Utrecht · <a href="https://doi.org/10.5281/zenodo.15028115" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2025</span><span class="pub-chip pub-chip--conference">Conference paper</span></div>
-            <div class="pub-title">Harmonix Series: Accessible Digital Musical Instruments for Mindfulness and Creativity</div>
-            <div class="pub-venue">NIME 2025, Canberra — Hui, W.H.C. &amp; Hartono, P. · <a href="https://doi.org/10.5281/zenodo.15698819" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2023</span><span class="pub-chip pub-chip--journal">Journal article</span></div>
-            <div class="pub-title">Algorave Music Practice in Indonesia: Paguyuban Algorave</div>
-            <div class="pub-venue">Organised Sound 28(2):185–194, Cambridge UP — Hartono, P. &amp; Sutanto, S.J. · <a href="https://doi.org/10.1017/s1355771823000390" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2022</span><span class="pub-chip pub-chip--conference">Conference paper</span></div>
-            <div class="pub-title">MusicXR@ICMC2020/21</div>
-            <div class="pub-venue">International Computer Music Conference 2021 — Hartono, P. · <a href="https://doi.org/10.25370/array.v2021.2" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2022</span><span class="pub-chip pub-chip--creative">Creative work</span></div>
-            <div class="pub-title">Spectral Chaos [Multichannel ambisonic]</div>
-            <div class="pub-venue">Sonic Saturday, Ars Electronica, Linz · <a href="https://doi.org/10.25439/rmt.30444059" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2022</span><span class="pub-chip pub-chip--conference">Conference paper</span></div>
-            <div class="pub-title">Handmate: An Accessible Browser-Based Controller for Web Audio and MIDI via AI Hand-Tracking</div>
-            <div class="pub-venue">NIME 2022 — Lim, M., Kotsani, N. &amp; Hartono, P. · <a href="https://doi.org/10.21428/92fbeb44.40c13869" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2022</span><span class="pub-chip pub-chip--creative">Creative work</span></div>
-            <div class="pub-title">Antithesis</div>
-            <div class="pub-venue">ICMC 2022, University of Limerick · <a href="https://doi.org/10.25439/rmt.31798162" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2021</span><span class="pub-chip pub-chip--creative">Creative work</span></div>
-            <div class="pub-title">Continuum</div>
-            <div class="pub-venue">Pidato Kebudayaan DKJ 2021, Jakarta Art Council · <a href="https://doi.org/10.25439/rmt.31834834" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2021</span><span class="pub-chip pub-chip--book">Book</span></div>
-            <div class="pub-title">Understanding Noise: A Composer's Reflection</div>
-            <div class="pub-venue">Sound Environment Centre #19, Lund University · <a href="https://doi.org/10.37852/oblu.115" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2021</span><span class="pub-chip pub-chip--creative">Creative work</span></div>
-            <div class="pub-title">Parakletos for Audiovisual Composition</div>
-            <div class="pub-venue">PRIX CIME 2021 Electroacoustic Music Competition · <a href="https://doi.org/10.25439/rmt.30462533" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2021</span><span class="pub-chip pub-chip--creative">Creative work</span></div>
-            <div class="pub-title">Dystopia Trilogy [WebVR]</div>
-            <div class="pub-venue">ICMC 2021 — Pontificia Universidad Católica de Chile / CCRMA Stanford · <a href="https://doi.org/10.25439/rmt.31742884" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2021</span><span class="pub-chip pub-chip--creative">Creative work</span></div>
-            <div class="pub-title">Covid-19 Attack</div>
-            <div class="pub-venue">BEAST FEaST 2021, University of Birmingham · <a href="https://doi.org/10.25439/rmt.31828432" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2019</span><span class="pub-chip pub-chip--creative">Creative work</span></div>
-            <div class="pub-title">"Trapped" — Gamified Sonic Interaction</div>
-            <div class="pub-venue">Linux Audio Conference 2019, CCRMA Stanford · <a href="https://doi.org/10.25439/rmt.31828453" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-          <li>
-            <div class="pub-meta"><span class="year">2019</span><span class="pub-chip pub-chip--conference">Conference paper</span></div>
-            <div class="pub-title">"Trapped": An Interactive Gamified Audiovisual Installation</div>
-            <div class="pub-venue">1st International Conference on Intermedia Arts and Creative Technology (INSTICC) · <a href="https://doi.org/10.5220/0008526600560061" target="_blank" rel="noopener">DOI</a></div>
-          </li>
-        </ol>
-      </article>
-
-      <article class="cv-section">
-        <h2>Awards &amp; distinctions</h2>
-        <ul class="plain-list">
-          <li><span class="year">2025</span><span>Best Artistic Research Paper — Southeast Asia China Cultural Studies Center, Institut Kesenian Jakarta.</span></li>
-          <li><span class="year">2024</span><span>Conservatorium Director's Award for Exceptional Doctoral Research — University of Melbourne.</span></li>
-          <li><span class="year">2017</span><span>International Computer Music Association — Audience Award.</span></li>
-          <li><span class="year">2016</span><span>Postgraduate Excellence Scholarship — Goldsmiths, University of London.</span></li>
-        </ul>
-      </article>
-
-      <article class="cv-section">
-        <h2>Service &amp; engagement</h2>
-        <ul class="plain-list">
-          <li><span class="year">2022→</span><span>Board Member, <strong>International Computer Music Association</strong>.</span></li>
-          <li><span class="year">2026→</span><span>Proposer, <strong><a href="/aparn-hq/">APARN HQ 2026–2031</a></strong> — open infrastructure for the Asia-Pacific Artistic Research Network.</span></li>
-          <li><span class="year">2026</span><span>Demo &amp; Poster Chair, NIME 2026.</span></li>
-          <li><span class="year">2025</span><span>Social Chair, NIME 2025.</span></li>
-          <li><span class="year">—</span><span>Peer reviewer &amp; committee — ACM SIGGRAPH SPARK · ACM DIS · NIME.</span></li>
-          <li><span class="year">—</span><span>Editorial engagement — Journal of Artistic Research.</span></li>
-        </ul>
-      </article>
-
-      <article class="cv-section">
-        <h2>Contact</h2>
-        <ul class="plain-list">
-          <li><span class="year">Email</span><span><a href="mailto:patrick.hartono@rmit.edu.vn">patrick.hartono@rmit.edu.vn</a></span></li>
-          <li><span class="year">GitHub</span><span><a href="https://github.com/patrickhartono" target="_blank" rel="noopener">github.com/patrickhartono</a></span></li>
-          <li><span class="year">LinkedIn</span><span><a href="https://linkedin.com/in/patrick-hartono-84111486" target="_blank" rel="noopener">linkedin.com/in/patrick-hartono-84111486</a></span></li>
-          <li><span class="year">ORCID</span><span>0000-0002-5604-274X</span></li>
-        </ul>
-      </article>
-    </main>
+    </div>
 
     <script>
     (function(){
@@ -325,8 +111,8 @@
         }
         requestAnimationFrame(frame);
       }
-      cv.addEventListener('mousedown',function(e){dragging=true;lastX=e.clientX;lastY=e.clientY;});
-      window.addEventListener('mouseup',function(){dragging=false;});
+      cv.addEventListener('mousedown',function(e){dragging=true;lastX=e.clientX;lastY=e.clientY;cv.style.cursor='grabbing';});
+      window.addEventListener('mouseup',function(){dragging=false;cv.style.cursor='grab';});
       window.addEventListener('mousemove',function(e){
         if(!dragging) return;
         rot+=(e.clientX-lastX)*0.007;
@@ -343,6 +129,7 @@
         tilt=Math.max(-1.2,Math.min(1.2,tilt));
         lastX=e.touches[0].clientX; lastY=e.touches[0].clientY;
       },{passive:true});
+      cv.style.cursor='grab';
       requestAnimationFrame(frame);
     })();
     </script>
