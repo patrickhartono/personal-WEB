@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APARN HQ 2026–2031 — Patrick Hartono</title>
+<style>
+  :root{
+    --navy:#0b1526;
+    --navy2:#132444;
+    --navy3:#1c3153;
+    --gold:#c9a24b;
+    --gold-soft:#eeda9e;
+    --paper:#f6f3ea;
+    --muted:#93a2c2;
+    --line:rgba(201,162,75,0.32);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;}
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    background:var(--navy);
+    color:var(--paper);
+    overflow:hidden;
+  }
+  #bgCanvas{
+    position:fixed; inset:0;
+    width:100%; height:100%;
+    z-index:0;
+  }
+  .deck{position:relative; width:100vw; height:100vh; z-index:1;}
+  .slide{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    padding:6vh 8vw;
+    opacity:0;
+    transform:translateX(40px) scale(.98);
+    pointer-events:none;
+    transition:opacity .55s ease, transform .55s ease;
+  }
+  .slide.active{opacity:1; transform:translateX(0) scale(1); pointer-events:auto;}
+  .slide.prevslide{transform:translateX(-40px) scale(.98);}
+  .slide-inner{width:100%; max-width:1020px;}
+  .kicker{
+    text-transform:uppercase; letter-spacing:.22em; font-size:.75rem;
+    color:var(--gold); font-weight:600; margin-bottom:14px;
+  }
+  h1{
+    font-size:clamp(2rem, 5vw, 3.5rem); line-height:1.08; margin:0 0 18px; font-weight:700;
+    background:linear-gradient(100deg, #fff 40%, var(--gold-soft) 60%, #fff 80%);
+    background-size:220% auto;
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:shimmer 6s linear infinite;
+  }
+  @keyframes shimmer{ 0%{background-position:0% center;} 100%{background-position:-220% center;} }
+  h1 .accent{color:var(--gold-soft);}
+  h2{ font-size:clamp(1.5rem, 3.2vw, 2.2rem); margin:0 0 22px; font-weight:700; color:#fff; }
+  p.lead{ font-size:clamp(1rem, 1.6vw, 1.25rem); line-height:1.6; color:var(--muted); max-width:760px; }
+  .statement{ font-size:clamp(1.5rem, 3.4vw, 2.4rem); font-weight:600; line-height:1.35; color:#fff; }
+  .statement em{ color:var(--gold-soft); font-style:normal; border-bottom:2px solid var(--gold); }
+
+  .stat-row{display:flex; gap:26px; flex-wrap:wrap; margin-top:32px;}
+  .stat{
+    background:rgba(19,36,68,.7);
+    backdrop-filter:blur(6px);
+    border:1px solid var(--line);
+    border-radius:14px; padding:22px 26px; min-width:150px; flex:1;
+    transition:transform .3s, box-shadow .3s;
+  }
+  .stat:hover{transform:translateY(-4px); box-shadow:0 12px 28px rgba(0,0,0,.35);}
+  .stat .num{font-size:2.3rem; font-weight:700; color:var(--gold-soft);}
+  .stat .label{font-size:.85rem; color:var(--muted); margin-top:4px;}
+
+  .tenets{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:34px;}
+  .tenet{
+    background:rgba(19,36,68,.7); backdrop-filter:blur(6px);
+    border:1px solid var(--line); border-radius:14px; padding:24px;
+    transition:transform .3s, border-color .3s;
+  }
+  .tenet:hover{transform:translateY(-4px); border-color:var(--gold);}
+  .tenet .n{font-size:.8rem; color:var(--gold); font-weight:700; letter-spacing:.1em;}
+  .tenet h3{color:#fff; font-size:1.1rem; margin:10px 0 8px;}
+  .tenet p{color:var(--muted); font-size:.92rem; line-height:1.5; margin:0;}
+
+  .grid2{display:grid; grid-template-columns:1.1fr .9fr; gap:40px; align-items:center; width:100%;}
+  .zenodo-box{
+    background:rgba(19,36,68,.75); backdrop-filter:blur(6px);
+    border:1px solid var(--line); border-radius:18px; padding:28px;
+    box-shadow:0 0 0 1px rgba(201,162,75,0.06), 0 20px 40px rgba(0,0,0,.3);
+  }
+  .zenodo-box .big{font-size:2.4rem; font-weight:700; color:var(--gold-soft);}
+  .zenodo-box .row{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px dashed var(--line); font-size:.9rem; color:var(--muted);}
+  .zenodo-box .row:last-child{border-bottom:none;}
+  .zenodo-box .row b{color:#fff; font-weight:600;}
+
+  ul.plain{list-style:none; margin:0; padding:0;}
+  ul.plain li{position:relative; padding-left:26px; margin-bottom:14px; color:var(--muted); font-size:1rem; line-height:1.5;}
+  ul.plain li::before{content:""; position:absolute; left:0; top:8px; width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 8px var(--gold);}
+  ul.plain li b{color:#fff;}
+
+  /* pipeline */
+  .pipeline-wrap{width:100%; margin-top:20px;}
+  svg#pipelineSvg{width:100%; height:auto; overflow:visible;}
+  .ptrack{fill:none; stroke:rgba(255,255,255,0.12); stroke-width:3;}
+  .pnode circle.ring{fill:var(--navy2); stroke:var(--line); stroke-width:2; transition:stroke .3s, fill .3s, r .3s;}
+  .pnode.active circle.ring{stroke:var(--gold); fill:#2c497c; r:16;}
+  .ptoken{fill:var(--gold-soft); filter:drop-shadow(0 0 6px var(--gold));}
+  .pipeline-labels{display:grid; grid-template-columns:repeat(5,1fr); text-align:center; margin-top:14px;}
+  .pipeline-labels div{font-size:.78rem; color:var(--muted); padding:0 6px;}
+  .pipeline-labels div b{display:block; color:#fff; font-size:.88rem; margin-bottom:3px; transition:color .3s;}
+  .pnode-label.passed b{color:var(--gold);}
+  .pnode-label.active b{color:var(--gold-soft); text-shadow:0 0 10px rgba(238,218,158,.6);}
+
+  /* timeline */
+  .timeline{display:flex; gap:0; margin-top:36px; width:100%;}
+  .tl-item{flex:1; position:relative; padding-top:26px; padding-right:18px;}
+  .tl-item::before{content:""; position:absolute; top:0; left:0; right:18px; height:3px; background:var(--gold);}
+  .tl-item::after{content:""; position:absolute; top:-5px; left:0; width:13px; height:13px; border-radius:50%; background:var(--gold-soft); border:3px solid var(--navy); box-shadow:0 0 8px var(--gold);}
+  .tl-item .when{color:var(--gold-soft); font-weight:700; font-size:.85rem; margin-bottom:8px; display:block;}
+  .tl-item .what{color:var(--muted); font-size:.85rem; line-height:1.5;}
+
+  table.budget{width:100%; border-collapse:collapse; margin-top:28px; font-size:.95rem;}
+  table.budget th{text-align:left; color:var(--gold); font-size:.75rem; text-transform:uppercase; letter-spacing:.08em; padding:10px 14px; border-bottom:1px solid var(--line);}
+  table.budget td{padding:14px; border-bottom:1px solid rgba(255,255,255,0.06); color:var(--muted);}
+  table.budget td:first-child{color:#fff; font-weight:600;}
+  table.budget tr:last-child td{color:var(--gold-soft); font-weight:700; border-bottom:none;}
+
+  /* org toggle */
+  .toggle-row{display:flex; gap:10px; margin:8px 0 26px;}
+  .toggle-btn{
+    background:rgba(19,36,68,.7); border:1px solid var(--line); color:var(--muted);
+    padding:9px 18px; border-radius:999px; font-size:.85rem; cursor:pointer; transition:all .25s;
+  }
+  .toggle-btn.on{background:linear-gradient(180deg, rgba(201,162,75,.28), var(--navy2)); border-color:var(--gold); color:#fff; font-weight:600;}
+  .org-stage{position:relative; min-height:230px; width:100%;}
+  .org-state{position:absolute; inset:0; opacity:0; transform:translateY(10px) scale(.98); pointer-events:none; transition:opacity .5s ease, transform .5s ease;}
+  .org-state.on{opacity:1; transform:translateY(0) scale(1); pointer-events:auto;}
+  .org-tier{display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:14px;}
+  .org-box{background:rgba(19,36,68,.75); border:1px solid var(--line); border-radius:10px; padding:13px 18px; font-size:.82rem; color:#fff; text-align:center; min-width:140px;}
+  .org-box.lead{border-color:var(--gold); background:linear-gradient(180deg, rgba(201,162,75,.2), var(--navy2)); font-weight:700; box-shadow:0 0 20px rgba(201,162,75,.15);}
+  .org-box span{display:block; font-weight:400; color:var(--muted); font-size:.72rem; margin-top:3px;}
+  .org-note{color:var(--muted); font-size:.85rem; text-align:center; max-width:640px; margin:14px auto 0;}
+
+  .chips{display:flex; flex-wrap:wrap; gap:12px; margin:22px 0 20px;}
+  .chip{background:rgba(19,36,68,.75); border:1px solid var(--line); border-radius:999px; padding:9px 16px; font-size:.85rem; color:var(--gold-soft);}
+  .coc-note{background:rgba(19,36,68,.75); border:1px dashed var(--line); border-radius:14px; padding:20px 24px; color:var(--muted); font-size:.92rem; line-height:1.55; max-width:760px;}
+
+  .people{display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-top:28px;}
+  .person-card{background:rgba(19,36,68,.75); border:1px solid var(--line); border-radius:16px; padding:24px; transition:transform .3s, border-color .3s;}
+  .person-card:hover{transform:translateY(-4px); border-color:var(--gold);}
+  .person-card h3{color:var(--gold-soft); margin:0 0 10px; font-size:1.05rem;}
+  .person-card p{color:var(--muted); font-size:.88rem; line-height:1.55; margin:0;}
+
+  .closing{text-align:center;}
+  .closing .statement{max-width:780px; margin:0 auto 30px;}
+  .contact{margin-top:20px; color:var(--gold-soft); font-size:1rem; letter-spacing:.02em;}
+  .footer-brand{position:absolute; bottom:22px; left:8vw; font-size:.75rem; color:var(--muted); letter-spacing:.05em; z-index:2;}
+
+  .nav{
+    position:fixed; bottom:26px; left:50%; transform:translateX(-50%);
+    display:flex; align-items:center; gap:18px; z-index:50;
+    background:rgba(11,21,38,0.78); backdrop-filter:blur(8px);
+    border:1px solid var(--line); padding:10px 18px; border-radius:999px;
+  }
+  .nav button{background:none; border:none; color:var(--gold-soft); font-size:1.1rem; cursor:pointer; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:background .2s;}
+  .nav button:hover{background:rgba(201,162,75,0.15);}
+  .dots{display:flex; gap:7px;}
+  .dot{width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,0.25); cursor:pointer; transition:background .2s, transform .2s;}
+  .dot.active{background:var(--gold-soft); transform:scale(1.3); box-shadow:0 0 8px var(--gold);}
+  .counter{font-size:.75rem; color:var(--muted); min-width:44px; text-align:center;}
+  .progress{position:fixed; top:0; left:0; height:3px; background:linear-gradient(90deg, var(--gold), var(--gold-soft)); z-index:60; transition:width .4s ease;}
+
+  @media (max-width:760px){
+    .grid2{grid-template-columns:1fr;}
+    .tenets{grid-template-columns:1fr;}
+    .people{grid-template-columns:1fr;}
+    .timeline{flex-direction:column; gap:22px;}
+    .tl-item::before{display:none;}
+    .tl-item{padding-left:20px; padding-top:0;}
+    .tl-item::after{top:6px;}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div class="progress" id="progress"></div>
+<div class="deck" id="deck">
+
+  <section class="slide active">
+    <div class="slide-inner">
+      <div class="kicker">Expression of Interest — APARN HQ</div>
+      <h1>APARN HQ <span class="accent">2026–2031</span></h1>
+      <p class="lead">Building sovereignty for artistic research in the Asia Pacific — a proposal from Patrick Hartono, on behalf of Kolase Kota Seni (KKS), Jakarta.</p>
+    </div>
+    <div class="footer-brand">patrickhartono.xyz</div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="kicker">Where APARN stands today</div>
+      <h2>A large, active network — without infrastructure of its own.</h2>
+      <div class="stat-row">
+        <div class="stat"><div class="num" data-count="300">0</div><div class="label">members across the region</div></div>
+        <div class="stat"><div class="num" data-count="22">0</div><div class="label">countries represented at the last meeting</div></div>
+        <div class="stat"><div class="num" data-count="150">0</div><div class="label">presentations, hosted by Chulalongkorn University</div></div>
+        <div class="stat"><div class="num" data-count="7">0</div><div class="label">years running as a network / SAR Special Interest Group</div></div>
+      </div>
+      <p class="lead" style="margin-top:28px;">Yet APARN still has no way to give non-textual, non-traditional research output — installations, performances, visual work — a permanent record or a DOI.</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="kicker">The Vision</div>
+      <p class="statement">APARN doesn&rsquo;t need to borrow legitimacy from institutions built for text-based, Western academic research. <em>It can build its own.</em></p>
+      <div class="tenets">
+        <div class="tenet"><div class="n">01</div><h3>Publish on our own terms</h3><p>Recognise artistic and non-textual output as real research output.</p></div>
+        <div class="tenet"><div class="n">02</div><h3>Archive our own history</h3><p>Every APARN meeting, from the first to the most recent, permanently preserved.</p></div>
+        <div class="tenet"><div class="n">03</div><h3>Stay independent</h3><p>Not dependent on one institution&rsquo;s definition of research — or one individual.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="kicker">The Mechanism</div>
+      <h2>Zenodo — an open-science repository, free, with real DOIs.</h2>
+      <div class="grid2">
+        <ul class="plain">
+          <li><b>Archive the back-catalogue</b> — every APARN meeting from #1 to the most recent, uploaded and permanently preserved.</li>
+          <li><b>From APARN 2027</b> — new submissions accepted under a defined publication track, each issued a DOI, including non-textual work.</li>
+          <li><b>No cost</b> — Zenodo is free and openly maintained by CERN / OpenAIRE.</li>
+        </ul>
+        <div class="zenodo-box">
+          <div class="big">50GB</div>
+          <div class="row"><span>per record</span><b>up to 100 files</b></div>
+          <div class="row"><span>account storage</span><b>+150GB extra</b></div>
+          <div class="row"><span>cost</span><b>Free</b></div>
+          <div class="row"><span>DOI issuance</span><b>Automatic</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="kicker">This already works — elsewhere</div>
+      <h2>The NIME precedent</h2>
+      <ul class="plain">
+        <li><b>Open governance</b> — the NIME Board replaced a closed Steering Committee; anyone who attended one of the last 5 conferences can nominate and vote.</li>
+        <li><b>A working Zenodo pipeline</b> — a Proceedings Officer role, and a public tool that uploads proceedings and issues DOIs every year.</li>
+        <li><b>A reviewing culture</b> — 3 reviewers plus a meta-reviewer per submission, open to anyone in the community.</li>
+        <li><b>Tested this summer</b> — as Demo &amp; Poster Chair for <b>NIME 2026</b>, I helped run exactly this process: artistic installations, peer-reviewed, issued DOIs as non-traditional research output.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide" data-pipeline="true">
+    <div class="slide-inner">
+      <div class="kicker">How sovereignty actually works</div>
+      <h2>One submission, followed end to end</h2>
+      <p class="lead">A real, working pipeline that gives non-traditional artistic research its own path to a permanent, citable record.</p>
+      <div class="pipeline-wrap">
+        <svg id="pipelineSvg" viewBox="0 0 1000 160" preserveAspectRatio="xMidYMid meet">
+          <path class="ptrack" id="track" d="M40,80 C220,20 280,140 460,80 C620,20 680,140 860,80 L960,80" />
+          <g class="pnode" data-i="0"><circle class="ring" cx="40" cy="80" r="13"></circle></g>
+          <g class="pnode" data-i="1"><circle class="ring" cx="335" cy="55" r="13"></circle></g>
+          <g class="pnode" data-i="2"><circle class="ring" cx="500" cy="106" r="13"></circle></g>
+          <g class="pnode" data-i="3"><circle class="ring" cx="765" cy="55" r="13"></circle></g>
+          <g class="pnode" data-i="4"><circle class="ring" cx="960" cy="80" r="13"></circle></g>
+          <circle class="ptoken" id="token" r="7" cx="40" cy="80"></circle>
+        </svg>
+        <div class="pipeline-labels" id="plabels">
+          <div class="pnode-label" data-i="0"><b>Submit</b>Artist / researcher uploads non-traditional work</div>
+          <div class="pnode-label" data-i="1"><b>Peer review</b>3 reviewers + 1 meta-reviewer assess</div>
+          <div class="pnode-label" data-i="2"><b>Zenodo archive</b>Accepted work permanently stored</div>
+          <div class="pnode-label" data-i="3"><b>DOI issued</b>Automatic, permanent identifier</div>
+          <div class="pnode-label" data-i="4"><b>Published</b>Public, discoverable, citable forever</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="kicker">Keeping 300+ members engaged</div>
+      <h2>A quarterly gathering, adapted from SIGGRAPH DAC&rsquo;s SPARKS.</h2>
+      <p class="lead">SPARKS runs monthly lightning talks + discussion for the SIGGRAPH community between annual conferences. For APARN&rsquo;s first year, the same idea — scaled to <b style="color:#fff">quarterly</b>, open call for presenters, starting shortly after the Singapore 2026 meeting. Recordings feed directly into the Zenodo archive.</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="kicker">Infrastructure &amp; Budget</div>
+      <h2>Deliberately lean.</h2>
+      <table class="budget">
+        <tr><th>Item</th><th>Provider</th><th>Est. cost / year</th></tr>
+        <tr><td>Research repository + DOI</td><td>Zenodo</td><td>Free</td></tr>
+        <tr><td>Internal coordination</td><td>Google Drive</td><td>Free</td></tr>
+        <tr><td>Website + domain + SSL + email</td><td>Rumahweb (ID)</td><td>IDR 170k–300k</td></tr>
+        <tr><td><b>Total Year 1 cash outlay</b></td><td></td><td>~US$11–20</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="kicker">Organizational structure</div>
+      <h2>Built not to depend on one person</h2>
+      <div class="toggle-row">
+        <button class="toggle-btn on" id="btnY1">Year 1</button>
+        <button class="toggle-btn" id="btnY2">From Year 2</button>
+      </div>
+      <div class="org-stage">
+        <div class="org-state on" id="stateY1">
+          <div class="org-tier"><div class="org-box lead">HQ Director<br><span>Patrick Hartono</span></div></div>
+          <div class="org-tier"><div class="org-box">Appointed committee<br><span>Shares the 8–10 hrs / month</span></div></div>
+          <div class="org-tier"><div class="org-box">Convenors<br><span>Advisory, ex officio</span></div></div>
+          <p class="org-note">Simple and fast to stand up — priority is building the scaffolding, not governance overhead.</p>
+        </div>
+        <div class="org-state" id="stateY2">
+          <div class="org-tier"><div class="org-box lead">HQ Director<br><span>3-yr term, renewable once</span></div></div>
+          <div class="org-tier">
+            <div class="org-box">Repository &amp;<br>Publications Officer</div>
+            <div class="org-box">Communications /<br>Website Officer</div>
+          </div>
+          <div class="org-tier">
+            <div class="org-box">2× Members-at-Large</div>
+            <div class="org-box">Convenors<br><span>ex officio</span></div>
+          </div>
+          <p class="org-note">Nomination and voting open to anyone who has participated in an APARN meeting within the last 5 years.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="kicker">Code of Conduct &amp; content guidelines</div>
+      <h2>In development — these are the starting principles</h2>
+      <p class="lead">The full guidelines will be co-authored with the appointed committee and the convenors, adapting NIME&rsquo;s open reviewing culture.</p>
+      <div class="chips">
+        <span class="chip">Openness</span>
+        <span class="chip">Plurality of voices</span>
+        <span class="chip">Non-traditional work is real research</span>
+        <span class="chip">Community oversight, not one gatekeeper</span>
+        <span class="chip">Attribution &amp; consent for archived material</span>
+      </div>
+      <div class="coc-note">Placeholder — full submission eligibility, reviewer conduct, and content/takedown policy to be drafted with the Year 1 committee before APARN 2027 opens for submissions.</div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="kicker">Year 1 Roadmap</div>
+      <h2>Scaffolding first.</h2>
+      <div class="timeline">
+        <div class="tl-item"><span class="when">Q3 2026</span><span class="what">Post-Singapore. Form HQ committee, begin Zenodo setup, move coordination to shared Drive.</span></div>
+        <div class="tl-item"><span class="when">Q3–Q4 2026</span><span class="what">Archive APARN #1 → present on Zenodo. Launch rebuilt APARN website.</span></div>
+        <div class="tl-item"><span class="when">Q4 2026</span><span class="what">First quarterly community gathering — open call + lightning talks.</span></div>
+        <div class="tl-item"><span class="when">2027</span><span class="what">APARN 2027 opens with DOI-ready submission tracks and peer review.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="kicker">Who&rsquo;s behind this</div>
+      <div class="people">
+        <div class="person-card">
+          <h3>Patrick Hartono</h3>
+          <p>BMus Rotterdam Conservatory + Institute of Sonology, MMus Sonic Arts (Goldsmiths), PhD (Conservatorium Director&rsquo;s Award). Published in <i>Organised Sound</i>, <i>Computer Music Journal</i>, ACM &amp; NIME. Board, International Computer Music Association. Leadership: NIME, ACM DIS, ACM SIGGRAPH SPARK. Demo &amp; Poster Chair, NIME 2026. Submitting through KKS, not his university affiliation.</p>
+        </div>
+        <div class="person-card">
+          <h3>Kolase Kota Seni (KKS)</h3>
+          <p>Jakarta-based multidisciplinary arts &amp; research institution — Research &amp; Art Programs, Publishing (wacana-kota-kita), and Consulting divisions. Runs JIPAF 2026, an international performing-arts festival under the Jakarta Arts Council. Support confirmed by chair Iwan Gunawan.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner closing">
+      <div class="kicker">Closing</div>
+      <p class="statement">APARN has the community and the credibility. What it needs now is the infrastructure and governance to make its <em>sovereignty</em> durable.</p>
+      <div class="contact">Patrick Hartono · on behalf of Kolase Kota Seni · hartono.patrick@gmail.com</div>
+    </div>
+  </section>
+
+</div>
+
+<div class="nav">
+  <button id="prev" aria-label="Previous">&#10094;</button>
+  <div class="dots" id="dots"></div>
+  <div class="counter" id="counter">1 / 13</div>
+  <button id="next" aria-label="Next">&#10095;</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const dotsWrap = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  const progress = document.getElementById('progress');
+  let current = 0;
+
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsWrap.appendChild(d);
+  });
+  const dots = document.querySelectorAll('.dot');
+  counter.textContent = '1 / ' + slides.length;
+
+  function animateCounts(slide){
+    slide.querySelectorAll('[data-count]').forEach(el => {
+      const target = parseInt(el.getAttribute('data-count'), 10);
+      let val = 0;
+      const step = Math.max(1, Math.round(target / 40));
+      clearInterval(el._timer);
+      el.textContent = '0';
+      el._timer = setInterval(() => {
+        val += step;
+        if(val >= target){ val = target; clearInterval(el._timer); }
+        el.textContent = val;
+      }, 22);
+    });
+  }
+
+  function goTo(i){
+    if(i < 0 || i >= slides.length) return;
+    slides[current].classList.remove('active');
+    slides[current].classList.toggle('prevslide', i < current);
+    dots[current].classList.remove('active');
+    current = i;
+    slides.forEach((s, idx) => { if(idx !== current) s.classList.remove('prevslide'); });
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+    counter.textContent = (current+1) + ' / ' + slides.length;
+    progress.style.width = ((current+1)/slides.length*100) + '%';
+    animateCounts(slides[current]);
+    if(slides[current].hasAttribute('data-pipeline')) pipelineActive = true; else pipelineActive = false;
+  }
+
+  document.getElementById('prev').addEventListener('click', () => goTo(current-1));
+  document.getElementById('next').addEventListener('click', () => goTo(current+1));
+
+  window.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowRight' || e.key === ' ') goTo(current+1);
+    if(e.key === 'ArrowLeft') goTo(current-1);
+  });
+
+  let touchX = null;
+  window.addEventListener('touchstart', e => touchX = e.touches[0].clientX);
+  window.addEventListener('touchend', e => {
+    if(touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if(dx > 50) goTo(current-1);
+    if(dx < -50) goTo(current+1);
+    touchX = null;
+  });
+
+  progress.style.width = (1/slides.length*100) + '%';
+
+  // pipeline animation (runs always, but only visually relevant on its slide)
+  let pipelineActive = false;
+  const track = document.getElementById('track');
+  const token = document.getElementById('token');
+  const labels = document.querySelectorAll('.pnode-label');
+  const nodes = document.querySelectorAll('.pnode');
+  const len = track.getTotalLength();
+  const nodeFractions = [0, 0.25, 0.5, 0.75, 1];
+  let t = 0;
+  function animatePipeline(){
+    if(pipelineActive){
+      t += 0.0026;
+      if(t > 1.08) t = 0;
+      const clamped = Math.min(t, 1);
+      const pt = track.getPointAtLength(clamped * len);
+      token.setAttribute('cx', pt.x);
+      token.setAttribute('cy', pt.y);
+      labels.forEach((label, i) => {
+        const f = nodeFractions[i];
+        const isActive = Math.abs(clamped - f) < 0.06;
+        label.classList.toggle('active', isActive);
+        label.classList.toggle('passed', clamped >= f - 0.001);
+        nodes[i].classList.toggle('active', isActive);
+      });
+    }
+    requestAnimationFrame(animatePipeline);
+  }
+  requestAnimationFrame(animatePipeline);
+
+  // org toggle
+  const btnY1 = document.getElementById('btnY1');
+  const btnY2 = document.getElementById('btnY2');
+  const stateY1 = document.getElementById('stateY1');
+  const stateY2 = document.getElementById('stateY2');
+  function showYear(y){
+    btnY1.classList.toggle('on', y===1);
+    btnY2.classList.toggle('on', y===2);
+    stateY1.classList.toggle('on', y===1);
+    stateY2.classList.toggle('on', y===2);
+  }
+  btnY1.addEventListener('click', () => showYear(1));
+  btnY2.addEventListener('click', () => showYear(2));
+
+  // persistent animated network background
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, points;
+  function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  function initPoints(){
+    points = [];
+    const count = Math.max(24, Math.floor(W/80));
+    for(let i=0;i<count;i++){
+      points.push({ x: Math.random()*W, y: Math.random()*H, vx:(Math.random()-0.5)*0.22, vy:(Math.random()-0.5)*0.22 });
+    }
+  }
+  function drawNetwork(){
+    ctx.clearRect(0,0,W,H);
+    points.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if(p.x < 0 || p.x > W) p.vx *= -1;
+      if(p.y < 0 || p.y > H) p.vy *= -1;
+    });
+    for(let i=0;i<points.length;i++){
+      for(let j=i+1;j<points.length;j++){
+        const dx = points[i].x - points[j].x, dy = points[i].y - points[j].y;
+        const d = Math.sqrt(dx*dx+dy*dy);
+        if(d < 170){
+          ctx.strokeStyle = 'rgba(201,162,75,' + (0.14*(1-d/170)) + ')';
+          ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(points[i].x, points[i].y); ctx.lineTo(points[j].x, points[j].y); ctx.stroke();
+        }
+      }
+    }
+    points.forEach(p => {
+      ctx.fillStyle = 'rgba(238,218,158,0.5)';
+      ctx.beginPath(); ctx.arc(p.x, p.y, 1.6, 0, Math.PI*2); ctx.fill();
+    });
+    requestAnimationFrame(drawNetwork);
+  }
+  window.addEventListener('resize', () => { resize(); initPoints(); });
+  resize(); initPoints(); requestAnimationFrame(drawNetwork);
+
+  animateCounts(slides[0]);
+</script>
+
+</body>
+</html>
