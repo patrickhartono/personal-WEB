@@ -5,18 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Patrick Hartono — HCI &amp; Creative AI researcher.">
     <title>Patrick Hartono</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="/css/site.css">
   </head>
   <body>
-    <main class="landing landing--minimal">
-      <ul class="nav-list nav-list--large" aria-label="Sections">
-        <li><a href="/about/">About</a></li>
-        <li><a href="/works/">Works</a></li>
-        <li><a href="/teaching/">Teaching</a></li>
-      </ul>
+    <main class="landing--mono" id="landing" data-theme="black">
+      <button class="theme-toggle" id="themeToggle" type="button" role="switch" aria-checked="false" aria-label="Switch background to white">
+        <span class="lbl">Black</span>
+        <span class="track"><span class="knob"></span></span>
+        <span class="lbl">White</span>
+      </button>
+
+      <nav class="nav3d" id="nav3d" aria-label="Sections">
+        <a class="word" data-depth="11" href="/about/">About<span class="ord">01</span></a>
+        <a class="word" data-depth="16" href="/works/">Works<span class="ord">02</span></a>
+        <a class="word" data-depth="21" href="/teaching/">Teaching<span class="ord">03</span></a>
+      </nav>
     </main>
+
+    <script src="/js/landing-nav.js"></script>
   </body>
 </html>
