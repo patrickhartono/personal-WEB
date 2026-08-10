@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Jakarta Witness — Patrick Hartono</title>
-    <meta name="description" content="Jakarta Witness — a browser-based installation running object detection and a vision-language model on real Jakarta traffic footage. Gold Award, iNVENTX 2026. Paper accepted, ACM SIGGRAPH Asia 2026.">
+    <meta name="description" content="Jakarta Witness — a browser-based installation running object detection and a vision-language model on real Jakarta traffic footage, entirely client-side. Gold Award, iNVENTX 2026. Paper accepted, ACM SIGGRAPH Asia 2026.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -24,39 +24,56 @@
       <a class="work-back" href="/works/">← Works</a>
 
       <div class="work-head">
-        <span class="cat">Works That Read You</span>
+        <span class="cat">Machine Perception</span>
         <h1>Jakarta Witness</h1>
-        <p class="descriptor">Browser-based installation · runs entirely client-side · 2026</p>
+        <p class="descriptor">Browser-based interactive installation · runs entirely client-side · 2026</p>
       </div>
 
       <div class="work-body">
         <p>
-          Real Jakarta traffic footage runs through an object-detection network,
-          its bounding boxes counting motorbikes, cars and pedestrians in real
-          time. A small language model reads those counts and proposes solutions
-          in a cold, clinical voice — logical on its own terms, and quietly blind
-          to the lives the numbers stand for.
+          Real Jakarta traffic footage is analysed frame by frame by an
+          object-detection network, its restless bounding boxes counting
+          motorbikes, cars and pedestrians. A small language model reads those
+          counts and proposes a solution in a cold, clinical voice — ban the
+          motorbikes, meter the cars, lift the traffic onto an elevated road.
         </p>
         <p>
-          A third panel reduces the city to coloured rectangles sliding on a grid:
-          the same flattening, made visible. The whole system — YOLOv8s detection,
-          a vision–language model, and a generative simulation — runs client-side
-          on WebGPU, with no server and no cloud processing standing between the
-          footage and the room.
+          Each solution is logical on its own terms and quietly catastrophic,
+          because each is reasoned from densities and knows nothing of the lives
+          those densities stand for. A third panel completes the thought: the
+          city reduced to coloured rectangles on a grid. That flattening is the
+          subject of the work.
         </p>
       </div>
 
       <dl class="work-facts">
         <dt>Year</dt><dd>2026</dd>
-        <dt>Medium</dt><dd>Browser-based installation — real-time object detection (YOLOv8s), vision–language model, generative simulation, WebGPU</dd>
+        <dt>Medium</dt><dd>Browser-based interactive installation — real-time object detection (YOLOv8s / ONNX Runtime Web), vision–language model (Qwen 2.5), generative simulation in p5.js</dd>
+        <dt>System</dt><dd>Runs entirely client-side on WebGPU. No server, no cloud API, no data leaves the viewer's device.</dd>
         <dt>Exhibition</dt><dd>Gold Award, 4th International iNVENTX Creative Exhibition, Multimedia University Malaysia · ICAD 16 "Being: Becoming," Jakarta</dd>
         <dt>Publication</dt><dd>Paper accepted, ACM SIGGRAPH Asia 2026</dd>
+        <dt>Live work</dt><dd><a href="https://jakarta-witness.com" rel="noopener">jakarta-witness.com</a></dd>
       </dl>
 
+      <div class="work-media">
+        <figure>
+          <img src="/images/works/jakarta-witness-01.jpg" alt="Detection panel — bounding boxes over real Jakarta traffic footage, with live class counts.">
+        </figure>
+      </div>
+      <div class="work-media two">
+        <figure>
+          <img src="/images/works/jakarta-witness-02.jpg" alt="Three simultaneous detection feeds across different traffic scenes.">
+        </figure>
+        <figure>
+          <img src="/images/works/jakarta-witness-03.jpg" alt="Detection panel with dense motorbike and car traffic, bounding boxes overlaid.">
+        </figure>
+      </div>
+      <p class="m" style="color:var(--muted); margin-top:10px;">Detection, the model's account, and the reduced simulation. Figures as published with the SIGGRAPH Asia paper.</p>
+
       <div class="work-nav">
-        <a href="/works/gorgon-loop/">← Gorgon Loop</a>
+        <a href="/works/trapped/">← Trapped</a>
         <a href="/works/">All works</a>
-        <a href="/works/cici-celine/">Cici Celine →</a>
+        <a href="/works/guilty/">GUILTY →</a>
       </div>
     </main>
   </body>
