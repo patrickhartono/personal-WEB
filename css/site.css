@@ -155,64 +155,118 @@ main { max-width: var(--page); margin: 0 auto; padding: 0 var(--gutter) 120px; }
   border-bottom: 1px solid var(--ink);
 }
 
-/* About hero — plexus beside intro text */
-.about-hero {
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) 1.4fr;
-  gap: 44px;
-  align-items: stretch;
-  margin-top: 26px;
-}
-
-.about-plexus {
-  position: relative;
-  background: #0c0c10;
-  min-height: 440px;
+/* About split-panel layout — full viewport, plexus left, bio right */
+body.about-page {
   overflow: hidden;
 }
-.about-plexus canvas {
+
+.about-split {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+.about-left {
+  position: relative;
+  width: 50%;
+  background: #0c0c10;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.about-left canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   display: block;
 }
-.about-plexus .hint {
+
+.about-back {
   position: absolute;
-  bottom: 14px;
-  left: 16px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.32);
+  top: 24px;
+  left: 28px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  border-bottom: none;
+  z-index: 3;
+  letter-spacing: 0.01em;
+  transition: color 160ms ease;
+}
+.about-back:hover { color: rgba(255, 255, 255, 0.82); }
+
+.about-drag-hint {
+  position: absolute;
+  bottom: 24px;
+  left: 28px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.28);
   font-style: italic;
   pointer-events: none;
+  z-index: 3;
 }
 
-.about-hero-text {
+.about-right {
+  flex: 1;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  align-items: center;
+  padding: 56px 52px;
+  overflow-y: auto;
+  background: var(--ground);
 }
-.about-hero-text h1 {
-  font-size: clamp(29px, 4.4vw, 44px);
-  line-height: 1.1;
+
+.about-bio {
+  max-width: 520px;
+  width: 100%;
+}
+
+.about-eyebrow {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
   margin-bottom: 14px;
 }
-.about-hero-text .lede {
-  font-size: clamp(17px, 1.7vw, 19px);
-  line-height: 1.55;
-  color: var(--muted);
-  max-width: 54ch;
-  margin-bottom: 20px;
-}
-.about-hero-text p {
-  font-size: 18px;
-  line-height: 1.7;
+
+.about-name {
+  font-size: clamp(26px, 3vw, 40px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--ink);
+  margin-bottom: 28px;
 }
 
-@media (max-width: 720px) {
-  .about-hero { grid-template-columns: 1fr; gap: 24px; }
-  .about-plexus { min-height: 320px; }
+.about-body p {
+  font-size: clamp(14px, 1.05vw, 16px);
+  line-height: 1.75;
+  color: var(--ink);
+  opacity: 0.85;
+}
+.about-body p + p { margin-top: 18px; }
+
+.about-elsewhere {
+  margin-top: 34px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+}
+.about-elsewhere .label { display: block; margin-bottom: 12px; }
+
+/* Tablet */
+@media (max-width: 900px) {
+  body.about-page { overflow-y: auto; }
+  .about-split { flex-direction: column; height: auto; min-height: 100vh; }
+  .about-left { width: 100%; height: 50vh; min-height: 280px; }
+  .about-right { flex: none; align-items: flex-start; padding: 44px 48px 60px; }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .about-left { height: 44vh; min-height: 240px; }
+  .about-drag-hint { bottom: 16px; left: 20px; }
+  .about-right { padding: 36px 24px 56px; }
+  .about-body p { font-size: 15px; }
 }
 
 .sec { margin-top: 58px; }
