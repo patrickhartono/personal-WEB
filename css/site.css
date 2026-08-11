@@ -155,6 +155,66 @@ main { max-width: var(--page); margin: 0 auto; padding: 0 var(--gutter) 120px; }
   border-bottom: 1px solid var(--ink);
 }
 
+/* About hero — plexus beside intro text */
+.about-hero {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 1.4fr;
+  gap: 44px;
+  align-items: stretch;
+  margin-top: 26px;
+}
+
+.about-plexus {
+  position: relative;
+  background: #0c0c10;
+  min-height: 440px;
+  overflow: hidden;
+}
+.about-plexus canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.about-plexus .hint {
+  position: absolute;
+  bottom: 14px;
+  left: 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.32);
+  font-style: italic;
+  pointer-events: none;
+}
+
+.about-hero-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.about-hero-text h1 {
+  font-size: clamp(29px, 4.4vw, 44px);
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+.about-hero-text .lede {
+  font-size: clamp(17px, 1.7vw, 19px);
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 54ch;
+  margin-bottom: 20px;
+}
+.about-hero-text p {
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+@media (max-width: 720px) {
+  .about-hero { grid-template-columns: 1fr; gap: 24px; }
+  .about-plexus { min-height: 320px; }
+}
+
 .sec { margin-top: 58px; }
 
 .sec > h2 {

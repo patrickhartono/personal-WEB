@@ -21,22 +21,28 @@
     </header>
 
     <main>
-      <div class="pagehead">
-        <h1>About</h1>
-        <p class="lede">
-          Lecturer in Digital Media (Interaction), RMIT University Vietnam.
-          PhD Interactive Composition, University of Melbourne.
-        </p>
+      <div class="about-hero">
+        <div class="about-plexus">
+          <canvas id="node-graph" aria-hidden="true"></canvas>
+          <span class="hint">Drag to rotate</span>
+        </div>
+        <div class="about-hero-text">
+          <h1>About</h1>
+          <p class="lede">
+            Lecturer in Digital Media (Interaction), RMIT University Vietnam.
+            PhD Interactive Composition, University of Melbourne.
+          </p>
+          <p>
+            Patrick Hartono is an artist and creative technologist working in interactive
+            media, building systems where machine perception and spatial sound become
+            compositional material. His practice sits at the intersection of interactive
+            media and transversal design: sound, image and computation treated as one
+            reconfigurable system rather than separate disciplines.
+          </p>
+        </div>
       </div>
 
       <div class="sec" style="max-width:66ch;">
-        <p style="font-size:18px; line-height:1.7;">
-          Patrick Hartono is an artist and creative technologist working in interactive
-          media, building systems where machine perception and spatial sound become
-          compositional material. His practice sits at the intersection of interactive
-          media and transversal design: sound, image and computation treated as one
-          reconfigurable system rather than separate disciplines.
-        </p>
         <p style="font-size:18px; line-height:1.7; margin-top:18px;">
           Two threads run through the work. The first turns computational classification
           into something a room can encounter directly — installations where machine
@@ -74,5 +80,90 @@
         </p>
       </div>
     </main>
+
+    <script>
+    (function(){
+      var cv = document.getElementById('node-graph'); if(!cv) return;
+      var ctx = cv.getContext('2d');
+      var labels = [
+        "Electroacoustic Composition","Audiovisual Performance","Computer Music",
+        "Human–Computer Interaction","Interactive Machine Learning",
+        "Embodied Interaction","Human–AI Co-Creativity","WebAudio / Creative Coding"
+      ];
+      var N = labels.length;
+      var nodes = [{x:0,y:0,z:0,c:true,label:"MY PRACTICE"}];
+      var off = 2/N, inc = Math.PI*(3-Math.sqrt(5));
+      for(var i=0;i<N;i++){
+        var y=i*off-1+off/2; var r=Math.sqrt(Math.max(0,1-y*y)); var phi=i*inc;
+        nodes.push({x:Math.cos(phi)*r, y:y, z:Math.sin(phi)*r, c:false, label:labels[i]});
+      }
+      var rot=0, tilt=0.42, dragging=false, lastX=0, lastY=0;
+      function rotate(p){
+        var x=p.x*Math.cos(rot)-p.z*Math.sin(rot);
+        var z=p.x*Math.sin(rot)+p.z*Math.cos(rot);
+        var y2=p.y*Math.cos(tilt)-z*Math.sin(tilt);
+        var z2=p.y*Math.sin(tilt)+z*Math.cos(tilt);
+        return {x:x,y:y2,z:z2};
+      }
+      function frame(){
+        var w=cv.clientWidth, h=cv.clientHeight;
+        if(w>0&&h>0){
+          var dpr=window.devicePixelRatio||1;
+          if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);}
+          ctx.setTransform(dpr,0,0,dpr,0,0);
+          ctx.clearRect(0,0,w,h);
+          var cx=w/2, cy=h/2, scale=Math.min(w,h)*0.34, fov=3.2;
+          var pts=nodes.map(function(n){var rr=rotate(n); var pz=fov/(fov+rr.z); return {sx:cx+rr.x*scale*pz, sy:cy+rr.y*scale*pz, z:rr.z, pz:pz, n:n};});
+          for(var i=1;i<pts.length;i++){
+            var b=pts[i];
+            ctx.strokeStyle='rgba(200,121,74,'+(0.18+0.30*b.pz).toFixed(3)+')';
+            ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(pts[0].sx,pts[0].sy); ctx.lineTo(b.sx,b.sy); ctx.stroke();
+          }
+          for(var a=1;a<pts.length;a++) for(var c=a+1;c<pts.length;c++){
+            var dx=nodes[a].x-nodes[c].x, dy=nodes[a].y-nodes[c].y, dz=nodes[a].z-nodes[c].z;
+            var d=Math.sqrt(dx*dx+dy*dy+dz*dz);
+            if(d<1.18){ctx.strokeStyle='rgba(216,211,200,'+(0.09*Math.min(pts[a].pz,pts[c].pz)).toFixed(3)+')'; ctx.lineWidth=0.6; ctx.beginPath(); ctx.moveTo(pts[a].sx,pts[a].sy); ctx.lineTo(pts[c].sx,pts[c].sy); ctx.stroke();}
+          }
+          var order=pts.map(function(p,idx){return idx;}).sort(function(a,b){return pts[a].z-pts[b].z;});
+          ctx.textAlign='center'; ctx.textBaseline='middle';
+          order.forEach(function(idx){
+            var p=pts[idx], n=p.n, rad=(n.c?8:4.5)*p.pz;
+            var g=ctx.createRadialGradient(p.sx,p.sy,0,p.sx,p.sy,rad*3.2);
+            if(n.c){g.addColorStop(0,'rgba(232,162,112,0.95)');g.addColorStop(1,'rgba(200,121,74,0)');}
+            else{g.addColorStop(0,'rgba(245,242,235,0.85)');g.addColorStop(1,'rgba(245,242,235,0)');}
+            ctx.fillStyle=g; ctx.beginPath(); ctx.arc(p.sx,p.sy,rad*3.2,0,7); ctx.fill();
+            ctx.fillStyle=n.c?'#F4C9A6':'#ffffff'; ctx.beginPath(); ctx.arc(p.sx,p.sy,rad,0,7); ctx.fill();
+            var fs=(n.c?17:12.5)*(0.72+0.45*p.pz);
+            ctx.font=(n.c?'700 ':'400 ')+fs.toFixed(1)+'px -apple-system,Helvetica,Arial,sans-serif';
+            var op=(0.4+0.6*p.pz).toFixed(3);
+            ctx.fillStyle=n.c?('rgba(244,201,166,'+op+')'):('rgba(232,228,218,'+op+')');
+            ctx.fillText(n.label, p.sx, p.sy-rad-fs*0.85);
+          });
+          if(!dragging) rot+=0.0032;
+        }
+        requestAnimationFrame(frame);
+      }
+      cv.addEventListener('mousedown',function(e){dragging=true;lastX=e.clientX;lastY=e.clientY;cv.style.cursor='grabbing';});
+      window.addEventListener('mouseup',function(){dragging=false;cv.style.cursor='grab';});
+      window.addEventListener('mousemove',function(e){
+        if(!dragging) return;
+        rot+=(e.clientX-lastX)*0.007;
+        tilt+=(e.clientY-lastY)*0.004;
+        tilt=Math.max(-1.2,Math.min(1.2,tilt));
+        lastX=e.clientX; lastY=e.clientY;
+      });
+      cv.addEventListener('touchstart',function(e){if(e.touches.length===1){dragging=true;lastX=e.touches[0].clientX;lastY=e.touches[0].clientY;}},{passive:true});
+      window.addEventListener('touchend',function(){dragging=false;});
+      window.addEventListener('touchmove',function(e){
+        if(!dragging||e.touches.length!==1) return;
+        rot+=(e.touches[0].clientX-lastX)*0.007;
+        tilt+=(e.touches[0].clientY-lastY)*0.004;
+        tilt=Math.max(-1.2,Math.min(1.2,tilt));
+        lastX=e.touches[0].clientX; lastY=e.touches[0].clientY;
+      },{passive:true});
+      cv.style.cursor='grab';
+      requestAnimationFrame(frame);
+    })();
+    </script>
   </body>
 </html>
