@@ -209,7 +209,7 @@ body.about-page {
 .about-right {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: safe center;
   padding: 56px 52px;
   overflow-y: auto;
   background: var(--ground);
