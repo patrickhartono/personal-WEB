@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Works visualisation — three options to compare</title>
+    <meta name="robots" content="noindex">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+    <style>
+      :root{
+        --ground:#ffffff; --ink:#000000; --muted:#5c5c5c; --rule:#e0e0e0;
+        --stage:#0c0c10;
+        --serif:Newsreader,"Iowan Old Style",Palatino,Georgia,serif;
+        --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+      }
+      *{box-sizing:border-box}
+      body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--serif);
+           font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+      .wrap{max-width:1180px;margin:0 auto;padding:28px clamp(20px,5vw,56px) 90px}
+
+      .lab-note{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+                text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+      h1{font-size:clamp(26px,3.4vw,38px);line-height:1.1;letter-spacing:-.02em;
+         font-weight:600;margin:0 0 12px}
+      .intro{color:var(--muted);font-size:16.5px;max-width:70ch;margin:0 0 26px}
+
+      .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+      .tabs button{font-family:var(--mono);font-size:12px;padding:9px 17px;border-radius:999px;
+        border:1px solid var(--rule);background:none;color:var(--muted);cursor:pointer}
+      .tabs button:hover{color:var(--ink);border-color:var(--ink)}
+      .tabs button.on{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+
+      .stage{position:relative;background:var(--stage);height:min(72vh,620px);overflow:hidden;
+             touch-action:none;cursor:grab}
+      .stage.grabbing{cursor:grabbing}
+      .stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+      .hint{position:absolute;left:18px;bottom:14px;font-family:var(--mono);font-size:11px;
+            color:rgba(255,255,255,.3);font-style:italic;pointer-events:none}
+      .cap{font-family:var(--mono);font-size:12px;color:var(--muted);
+           max-width:80ch;line-height:1.75;margin:0 0 14px}
+      .cap b{color:var(--ink);font-weight:500}
+
+      .why{margin-top:16px;border-top:1px solid var(--rule);padding-top:16px;
+           font-family:var(--mono);font-size:12px;line-height:1.8;color:var(--muted);max-width:80ch}
+      .why b{color:var(--ink);font-weight:500}
+      .why .good::before{content:"+ ";color:var(--ink)}
+      .why .bad::before{content:"− "}
+
+      .pending{margin-top:34px;padding:18px 20px;border:1px solid var(--rule);
+               font-family:var(--mono);font-size:12px;line-height:1.8;color:var(--muted)}
+      .pending b{color:var(--ink);font-weight:500}
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="lab-note">Preview · not linked from the site</div>
+      <h1>Works visualisation — three options</h1>
+      <p class="intro">
+        Same data, three arrangements. Every work from 2007 to 2026 is present in all
+        three; only the spatial logic changes. Drag to rotate, hover a point to name it.
+        Switching tabs animates between arrangements rather than cutting, so you can see
+        where each work goes.
+      </p>
+
+      <div class="tabs" id="tabs">
+        <button class="on" data-mode="axis">A · 3D time axis</button>
+        <button data-mode="helix">B · Time helix</button>
+        <button data-mode="constellation">C · Constellation</button>
+      </div>
+
+      <p class="cap" id="cap"></p>
+
+      <div class="stage" id="stage">
+        <canvas id="cv"></canvas>
+        <span class="hint">Drag to rotate · hover a point to name it</span>
+      </div>
+
+      <div class="why" id="why"></div>
+
+      <div class="pending">
+        <b>Still to fill in:</b> titles for the 2007–2014 period are being researched now
+        (YCMF 2007 / 2008 / 2010, WOCMAT 2012 / 2013, Sound Bridge 2013, and the 2014 run
+        of ICMC · ZKM · IRCAM · NYCEMF · Asian Composers League). Those years currently
+        show as hollow markers positioned by year, with the venue as the label — the shape
+        of the record is honest, the titles are simply not confirmed yet.
+        <b>Memento Mori</b> appears nowhere in your CV, so it has no year attached until
+        the research returns.
+      </div>
+    </div>
+
+    <script>
+    (function(){
+      // ── data ─────────────────────────────────────────────
+      // c: category index. 0 machine perception · 1 live · 2 immersive
+      //                    3 fixed-media · 4 earlier sound practice
+      var CATS = [
+        "Machine Perception",
+        "Live Performance",
+        "Immersive & Spatial",
+        "Fixed-Media Audiovisual",
+        "Electroacoustic & Spatial Sound"
+      ];
+      var W = [
+        {t:"Jakarta Witness",       y:2026, c:0, u:"/works/jakarta-witness/"},
+        {t:"GUILTY",                y:2026, c:1, u:"/works/guilty/"},
+        {t:"Ciung Wanara",          y:2023, c:1, u:"/works/ciung-wanara/"},
+        {t:"Hutan Plastik",         y:2025, c:2, u:"/works/hutan-plastik/"},
+        {t:"Dystopia Trilogy",      y:2021, c:2, u:"/works/dystopia-trilogy/"},
+        {t:"SpecGliFed",            y:2021, c:2, u:"/works/specglifed/"},
+        {t:"Trapped",               y:2019, c:2, u:"/works/trapped/"},
+        {t:"F2",                    y:2025, c:3, u:"/works/f2/"},
+        {t:"Parakletos",            y:2021, c:3, u:"/works/parakletos/"},
+        {t:"Continuum",             y:2021, c:3, u:"/works/continuum/"},
+        // earlier sound practice — documented titles
+        {t:"Spectral Chaos",        y:2022, c:4},
+        {t:"Antithesis",            y:2022, c:4},
+        {t:"Lockdown (binaural)",   y:2022, c:4},
+        {t:"Angkot Is the Melting Pot", y:2017, c:4},
+        {t:"Matrix Studies",        y:2017, c:4},
+        {t:"Noise to Signal",       y:2016, c:4},
+        {t:"Benjolin",              y:2015, c:4},
+        {t:"Kecapi I–III",          y:2015, c:4},
+        // documented appearances, titles pending research
+        {t:"Sonorities · Gaudeamus", y:2015, c:4, p:1},
+        {t:"ICMC · ZKM · IRCAM · NYCEMF · ACL", y:2014, c:4, p:1},
+        {t:"WOCMAT · Sound Bridge", y:2013, c:4, p:1},
+        {t:"WOCMAT",                y:2012, c:4, p:1},
+        {t:"YCMF",                  y:2010, c:4, p:1},
+        {t:"YCMF",                  y:2008, c:4, p:1},
+        {t:"YCMF",                  y:2007, c:4, p:1}
+      ];
+
+      var Y0 = 2007, Y1 = 2026;
+      var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+      var stage = document.getElementById('stage');
+      var cap = document.getElementById('cap');
+      var why = document.getElementById('why');
+
+      var COPY = {
+        axis:{
+          cap:"<b>A · 3D time axis</b><br>Left→right is time, 2007 to 2026. Each horizontal plane is one practice area. Position means something: you can read when a thread opened and whether it is still running.",
+          why:"<span class='good'><b>Reads as evidence.</b> Year and category are both recoverable from position, so it functions as a chart, not an ornament.</span><br><span class='good'><b>Shows the onset ladder</b> — the staircase from sound practice up to machine perception is literally visible as depth.</span><br><span class='bad'><b>Least spectacular</b> of the three at first glance.</span>"
+        },
+        helix:{
+          cap:"<b>B · Time helix</b><br>Time spirals upward — one full turn per five years, 2007 at the bottom, 2026 at the top. Angle around the spiral is position within the period; height is the year.",
+          why:"<span class='good'><b>Most striking of the three</b>, and the vertical rise carries the trajectory reading on its own.</span><br><span class='good'>Handles a long span well — twenty years fits without crowding.</span><br><span class='bad'><b>Year is harder to read precisely</b> because it is encoded as height along a curve; needs the labels to stay legible.</span>"
+        },
+        constellation:{
+          cap:"<b>C · Constellation</b><br>Five category hubs, each work orbiting its own hub. Closest in spirit to the plexus on the About page. Position encodes grouping, not time.",
+          why:"<span class='good'><b>Most consistent with the About page</b> — the site reads as one system.</span><br><span class='bad'><b>Year is not encoded at all</b>, so it cannot show trajectory — which is the thing hiring committees weight most.</span><br><span class='bad'>Risks reading as decoration repeated twice across the site.</span>"
+        }
+      };
+
+      // ── layouts: assign target x,y,z in a -1..1 cube ─────
+      function layoutAxis(w, i){
+        var t = (w.y - Y0) / (Y1 - Y0);          // 0..1 across time
+        var byYear = W.filter(function(o){ return o.y===w.y && o.c===w.c; });
+        var k = byYear.indexOf(w);
+        return {
+          x: t*2 - 1,
+          y: -0.55 + (w.c/(CATS.length-1))*1.10,   // newest category on top
+          z: (k - (byYear.length-1)/2) * 0.16
+        };
+      }
+      function layoutHelix(w){
+        var t = (w.y - Y0) / (Y1 - Y0);
+        var a = t * Math.PI * 2 * 4;              // 4 turns over 20 years
+        var byYear = W.filter(function(o){ return o.y===w.y; });
+        var k = byYear.indexOf(w);
+        var r = 0.62 + (k - (byYear.length-1)/2) * 0.1;
+        return { x: Math.cos(a)*r, y: 0.85 - t*1.7, z: Math.sin(a)*r };  // 2007 low → 2026 high
+      }
+      function layoutConstellation(w){
+        var hub = hubPos(w.c);
+        var sib = W.filter(function(o){ return o.c===w.c; });
+        var k = sib.indexOf(w), n = sib.length;
+        var off = 2/n, inc = Math.PI*(3-Math.sqrt(5));
+        var yy = k*off - 1 + off/2;
+        var rr = Math.sqrt(Math.max(0,1-yy*yy));
+        var phi = k*inc;
+        var R = 0.34;
+        return { x: hub.x + Math.cos(phi)*rr*R, y: hub.y + yy*R, z: hub.z + Math.sin(phi)*rr*R };
+      }
+      function hubPos(c){
+        var n = CATS.length, off = 2/n, inc = Math.PI*(3-Math.sqrt(5));
+        var yy = c*off - 1 + off/2;
+        var rr = Math.sqrt(Math.max(0,1-yy*yy));
+        var phi = c*inc, R = 0.62;
+        return { x: Math.cos(phi)*rr*R, y: yy*R, z: Math.sin(phi)*rr*R };
+      }
+
+      var LAYOUTS = { axis:layoutAxis, helix:layoutHelix, constellation:layoutConstellation };
+      var mode = 'axis';
+
+      // state per work: current + target position
+      W.forEach(function(w,i){
+        var p = LAYOUTS[mode](w,i);
+        w.cx=p.x; w.cy=p.y; w.cz=p.z; w.tx=p.x; w.ty=p.y; w.tz=p.z;
+      });
+
+      function retarget(){
+        W.forEach(function(w,i){
+          var p = LAYOUTS[mode](w,i);
+          w.tx=p.x; w.ty=p.y; w.tz=p.z;
+        });
+      }
+
+      // ── interaction ──────────────────────────────────────
+      // each arrangement reads best from a different angle
+      var CAM = {
+        axis:          { rot: 0.20, tilt: 0.16 },   // near front-on: time reads left→right
+        helix:         { rot: 0.45, tilt: 0.22 },
+        constellation: { rot: 0.50, tilt: 0.40 }
+      };
+      var rot=CAM.axis.rot, tilt=CAM.axis.tilt, trot=rot, ttilt=tilt;
+      var drag=false, lx=0, ly=0, hoverIdx=-1, mx=-999, my=-999, tick=0;
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      stage.addEventListener('pointerdown', function(e){
+        drag=true; lx=e.clientX; ly=e.clientY; stage.classList.add('grabbing');
+        stage.setPointerCapture(e.pointerId);
+      });
+      stage.addEventListener('pointerup', function(e){
+        drag=false; stage.classList.remove('grabbing');
+      });
+      stage.addEventListener('pointermove', function(e){
+        var r = cv.getBoundingClientRect();
+        mx = e.clientX - r.left; my = e.clientY - r.top;
+        if(!drag) return;
+        rot += (e.clientX-lx)*0.007;
+        tilt += (e.clientY-ly)*0.004;
+        tilt = Math.max(-1.1, Math.min(1.1, tilt));
+        trot = rot; ttilt = tilt;      // manual drag wins; stop easing to preset
+        lx=e.clientX; ly=e.clientY;
+      });
+      stage.addEventListener('pointerleave', function(){ mx=-999; my=-999; });
+      stage.addEventListener('click', function(){
+        if(hoverIdx>=0 && W[hoverIdx].u) window.location.href = W[hoverIdx].u;
+      });
+
+      document.getElementById('tabs').addEventListener('click', function(e){
+        var b = e.target.closest('button'); if(!b) return;
+        [].forEach.call(this.querySelectorAll('button'), function(x){ x.classList.remove('on'); });
+        b.classList.add('on');
+        mode = b.getAttribute('data-mode');
+        retarget();
+        trot = CAM[mode].rot; ttilt = CAM[mode].tilt;
+        cap.innerHTML = COPY[mode].cap;
+        why.innerHTML = COPY[mode].why;
+      });
+      cap.innerHTML = COPY[mode].cap;
+      why.innerHTML = COPY[mode].why;
+
+      // ── render ───────────────────────────────────────────
+      function project(x,y,z,cx,cy,scale,fov){
+        var rx = x*Math.cos(rot) - z*Math.sin(rot);
+        var rz = x*Math.sin(rot) + z*Math.cos(rot);
+        var ry = y*Math.cos(tilt) - rz*Math.sin(tilt);
+        var rz2 = y*Math.sin(tilt) + rz*Math.cos(tilt);
+        var pz = fov/(fov+rz2);
+        return { sx: cx + rx*scale*pz, sy: cy + ry*scale*pz, z: rz2, pz: pz };
+      }
+
+      function frame(){
+        var w = cv.clientWidth, h = cv.clientHeight;
+        if(w>0 && h>0){
+          var dpr = window.devicePixelRatio||1;
+          if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){
+            cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+          }
+          ctx.setTransform(dpr,0,0,dpr,0,0);
+          ctx.clearRect(0,0,w,h);
+
+          var cx=w/2, cy=h/2, scale=Math.min(w,h)*0.42, fov=3.4;
+
+          // ease camera toward this arrangement's preset angle
+          if(!drag){
+            rot += (trot-rot)*0.07;
+            tilt += (ttilt-tilt)*0.07;
+          }
+
+          // ease positions toward targets
+          W.forEach(function(o){
+            o.cx += (o.tx-o.cx)*0.09;
+            o.cy += (o.ty-o.cy)*0.09;
+            o.cz += (o.tz-o.cz)*0.09;
+          });
+
+          var pts = W.map(function(o,i){
+            var p = project(o.cx,o.cy,o.cz,cx,cy,scale,fov);
+            p.o = o; p.i = i; return p;
+          });
+
+          // year axis ticks (axis mode only)
+          if(mode==='axis'){
+            ctx.textAlign='center'; ctx.textBaseline='middle';
+            for(var yy=Y0; yy<=Y1; yy++){
+              if(yy%2!==0 && yy!==Y1) continue;
+              var t=(yy-Y0)/(Y1-Y0);
+              var a=project(t*2-1,0.74,0,cx,cy,scale,fov);
+              ctx.fillStyle='rgba(255,255,255,'+(0.10+0.16*a.pz).toFixed(3)+')';
+              ctx.font='400 '+(9*(0.7+0.5*a.pz)).toFixed(1)+'px "IBM Plex Mono",monospace';
+              ctx.fillText(String(yy), a.sx, a.sy);
+            }
+            // category lanes
+            for(var c=0;c<CATS.length;c++){
+              var yv = -0.55 + (c/(CATS.length-1))*1.10;
+              var s=project(-1,yv,0,cx,cy,scale,fov), e2=project(1,yv,0,cx,cy,scale,fov);
+              ctx.strokeStyle='rgba(255,255,255,0.055)'; ctx.lineWidth=1;
+              ctx.beginPath(); ctx.moveTo(s.sx,s.sy); ctx.lineTo(e2.sx,e2.sy); ctx.stroke();
+              ctx.textAlign='right';
+              ctx.fillStyle='rgba(255,255,255,'+(0.16+0.24*s.pz).toFixed(3)+')';
+              ctx.font='400 '+(9.5*(0.7+0.5*s.pz)).toFixed(1)+'px "IBM Plex Mono",monospace';
+              ctx.fillText(CATS[c], s.sx-10, s.sy);
+            }
+          }
+
+          if(mode==='helix'){
+            ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.lineWidth=1;
+            ctx.beginPath();
+            for(var s2=0; s2<=240; s2++){
+              var tt=s2/240, aa=tt*Math.PI*2*4;
+              var pp=project(Math.cos(aa)*0.62, 0.85-tt*1.7, Math.sin(aa)*0.62, cx,cy,scale,fov);
+              if(s2===0) ctx.moveTo(pp.sx,pp.sy); else ctx.lineTo(pp.sx,pp.sy);
+            }
+            ctx.stroke();
+          }
+
+          if(mode==='constellation'){
+            for(var c2=0;c2<CATS.length;c2++){
+              var hb=hubPos(c2);
+              var hp=project(hb.x,hb.y,hb.z,cx,cy,scale,fov);
+              W.forEach(function(o){
+                if(o.c!==c2) return;
+                var pp=project(o.cx,o.cy,o.cz,cx,cy,scale,fov);
+                ctx.strokeStyle='rgba(200,121,74,'+(0.10+0.20*pp.pz).toFixed(3)+')';
+                ctx.lineWidth=1; ctx.beginPath();
+                ctx.moveTo(hp.sx,hp.sy); ctx.lineTo(pp.sx,pp.sy); ctx.stroke();
+              });
+              ctx.textAlign='center'; ctx.textBaseline='middle';
+              ctx.fillStyle='rgba(244,201,166,'+(0.4+0.5*hp.pz).toFixed(3)+')';
+              ctx.font='500 '+(11*(0.72+0.45*hp.pz)).toFixed(1)+'px "IBM Plex Mono",monospace';
+              ctx.fillText(CATS[c2], hp.sx, hp.sy-14);
+              ctx.fillStyle='rgba(232,162,112,0.9)';
+              ctx.beginPath(); ctx.arc(hp.sx,hp.sy,5*hp.pz,0,7); ctx.fill();
+            }
+          }
+
+          // hit test — nearest point to cursor
+          hoverIdx = -1;
+          var best = 20;
+          pts.forEach(function(p){
+            var d = Math.hypot(p.sx-mx, p.sy-my);
+            if(d < best){ best = d; hoverIdx = p.i; }
+          });
+          stage.style.cursor = drag ? 'grabbing' : (hoverIdx>=0 && W[hoverIdx].u ? 'pointer' : 'grab');
+
+          // draw points back to front
+          pts.sort(function(a,b){ return a.z - b.z; });
+          ctx.textAlign='center'; ctx.textBaseline='middle';
+          pts.forEach(function(p){
+            var o=p.o, pend=!!o.p, hov = (p.i===hoverIdx);
+            var rad = (pend?3.4:5.2) * p.pz * (hov?1.6:1);
+
+            var g=ctx.createRadialGradient(p.sx,p.sy,0,p.sx,p.sy,rad*3.4);
+            g.addColorStop(0,'rgba(245,242,235,'+(pend?0.35:0.8)+')');
+            g.addColorStop(1,'rgba(245,242,235,0)');
+            ctx.fillStyle=g; ctx.beginPath(); ctx.arc(p.sx,p.sy,rad*3.4,0,7); ctx.fill();
+
+            if(pend){
+              ctx.strokeStyle='rgba(255,255,255,'+(0.30+0.3*p.pz).toFixed(3)+')';
+              ctx.lineWidth=1; ctx.beginPath(); ctx.arc(p.sx,p.sy,rad,0,7); ctx.stroke();
+            } else {
+              ctx.fillStyle='#ffffff';
+              ctx.beginPath(); ctx.arc(p.sx,p.sy,rad,0,7); ctx.fill();
+            }
+
+            if(hov){
+              var fs=12.5;
+              ctx.font='500 '+fs+'px "IBM Plex Mono",monospace';
+              var label=o.t+' · '+o.y+(pend?'  (title pending)':'');
+              var tw=ctx.measureText(label).width;
+              ctx.fillStyle='rgba(0,0,0,0.82)';
+              ctx.fillRect(p.sx-tw/2-8, p.sy-rad-fs-16, tw+16, fs+12);
+              ctx.fillStyle='#ffffff';
+              ctx.fillText(label, p.sx, p.sy-rad-fs-10+fs/2);
+            }
+          });
+
+          if(!drag && !reduce){
+          tick++;
+          if(mode==='axis'){
+            // a chart should not spin — drift gently around the readable angle
+            trot = CAM.axis.rot + Math.sin(tick*0.004)*0.13;
+          } else {
+            trot += 0.0018;              // atmospheric slow spin
+          }
+        }
+        }
+        requestAnimationFrame(frame);
+      }
+      // draw synchronously first so the canvas is never blank if rAF is
+      // throttled (background tab, reduced motion, low-power mode)
+      frame();
+      document.addEventListener('visibilitychange', function(){
+        if(!document.hidden) frame();
+      });
+      window.addEventListener('resize', frame);
+    })();
+    </script>
+  </body>
+</html>

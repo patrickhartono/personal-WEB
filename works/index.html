@@ -30,6 +30,26 @@
         </p>
       </div>
 
+      <section class="ptl" aria-labelledby="ptl-h">
+        <h2 id="ptl-h" class="label" style="display:block; margin-bottom:14px;">Practice over time</h2>
+        <p class="ptl-claim">
+          Four practice areas, opened in sequence — <b>2019</b> room-scale installation ·
+          <b>2021</b> fixed-media audiovisual · <b>2023</b> live performance ·
+          <b>2026</b> machine perception. Each new mode was added on top of a running one:
+          <b>all four have produced work within the last 24 months</b>.
+        </p>
+
+        <div class="ptl-stage" id="ptlStage">
+          <canvas id="ptlCanvas"></canvas>
+          <span class="ptl-hint">Drag to rotate · hover a point to name it</span>
+        </div>
+
+        <p class="ptl-foot">
+          <span class="ptl-key"><i></i> Featured work — click through</span>
+          <span class="ptl-key"><i class="ctx"></i> Earlier sound practice</span>
+        </p>
+      </section>
+
       <div class="sec">
         <div class="filters" id="filters">
           <button class="on" data-cat="all">All</button>
@@ -161,6 +181,187 @@
 
     <script>
     (function(){
+      // ── Practice constellation — five category hubs, works orbiting each.
+      // Monochrome only: white marks and rules on the dark stage, no colour.
+      var CATS = [
+        "Machine Perception",
+        "Live Performance",
+        "Immersive & Spatial",
+        "Fixed-Media Audiovisual",
+        "Electroacoustic & Spatial Sound"
+      ];
+      var W = [
+        {t:"Jakarta Witness",  y:2026, c:0, u:"/works/jakarta-witness/"},
+        {t:"GUILTY",           y:2026, c:1, u:"/works/guilty/"},
+        {t:"Ciung Wanara",     y:2023, c:1, u:"/works/ciung-wanara/"},
+        {t:"Hutan Plastik",    y:2025, c:2, u:"/works/hutan-plastik/"},
+        {t:"Dystopia Trilogy", y:2021, c:2, u:"/works/dystopia-trilogy/"},
+        {t:"SpecGliFed",       y:2021, c:2, u:"/works/specglifed/"},
+        {t:"Trapped",          y:2019, c:2, u:"/works/trapped/"},
+        {t:"F2",               y:2025, c:3, u:"/works/f2/"},
+        {t:"Parakletos",       y:2021, c:3, u:"/works/parakletos/"},
+        {t:"Continuum",        y:2021, c:3, u:"/works/continuum/"},
+        {t:"Benjolin",              y:2015, c:4, ctx:1},
+        {t:"Noise to Signal",       y:2016, c:4, ctx:1},
+        {t:"Angkot Is the Melting Pot", y:2017, c:4, ctx:1},
+        {t:"Matrix Studies",        y:2017, c:4, ctx:1},
+        {t:"Spectral Chaos",        y:2022, c:4, ctx:1},
+        {t:"Antithesis",            y:2022, c:4, ctx:1},
+        {t:"Lockdown",              y:2022, c:4, ctx:1}
+      ];
+
+      function hubPos(c){
+        var n = CATS.length, off = 2/n, inc = Math.PI*(3-Math.sqrt(5));
+        var yy = c*off - 1 + off/2;
+        var rr = Math.sqrt(Math.max(0,1-yy*yy));
+        var phi = c*inc, R = 0.62;
+        return { x: Math.cos(phi)*rr*R, y: yy*R, z: Math.sin(phi)*rr*R };
+      }
+      W.forEach(function(w){
+        var hub = hubPos(w.c);
+        var sib = W.filter(function(o){ return o.c===w.c; });
+        var k = sib.indexOf(w), n = sib.length;
+        var off = 2/n, inc = Math.PI*(3-Math.sqrt(5));
+        var yy = k*off - 1 + off/2;
+        var rr = Math.sqrt(Math.max(0,1-yy*yy));
+        var phi = k*inc, R = 0.34;
+        w.x = hub.x + Math.cos(phi)*rr*R;
+        w.y = hub.y + yy*R;
+        w.z = hub.z + Math.sin(phi)*rr*R;
+      });
+
+      var cv = document.getElementById('ptlCanvas');
+      var stage = document.getElementById('ptlStage');
+      if (cv && stage) {
+        var ctx = cv.getContext('2d');
+        var rot = 0.5, tilt = 0.32, drag = false, lx = 0, ly = 0;
+        var mx = -999, my = -999, hoverIdx = -1;
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        stage.addEventListener('pointerdown', function(e){
+          drag = true; lx = e.clientX; ly = e.clientY;
+          stage.classList.add('grabbing');
+          stage.setPointerCapture(e.pointerId);
+        });
+        stage.addEventListener('pointerup', function(){ drag = false; stage.classList.remove('grabbing'); });
+        stage.addEventListener('pointermove', function(e){
+          var r = cv.getBoundingClientRect();
+          mx = e.clientX - r.left; my = e.clientY - r.top;
+          if (!drag) return;
+          rot += (e.clientX - lx) * 0.007;
+          tilt += (e.clientY - ly) * 0.004;
+          tilt = Math.max(-1.1, Math.min(1.1, tilt));
+          lx = e.clientX; ly = e.clientY;
+        });
+        stage.addEventListener('pointerleave', function(){ mx = -999; my = -999; });
+        stage.addEventListener('click', function(){
+          if (hoverIdx >= 0 && W[hoverIdx].u) window.location.href = W[hoverIdx].u;
+        });
+
+        function project(x,y,z,cx,cy,scale,fov){
+          var rx = x*Math.cos(rot) - z*Math.sin(rot);
+          var rz = x*Math.sin(rot) + z*Math.cos(rot);
+          var ry = y*Math.cos(tilt) - rz*Math.sin(tilt);
+          var rz2 = y*Math.sin(tilt) + rz*Math.cos(tilt);
+          var pz = fov/(fov+rz2);
+          return { sx: cx + rx*scale*pz, sy: cy + ry*scale*pz, z: rz2, pz: pz };
+        }
+
+        function frame(){
+          var w = cv.clientWidth, h = cv.clientHeight;
+          if (w > 0 && h > 0) {
+            var dpr = window.devicePixelRatio || 1;
+            if (cv.width !== Math.round(w*dpr) || cv.height !== Math.round(h*dpr)) {
+              cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr);
+            }
+            ctx.setTransform(dpr,0,0,dpr,0,0);
+            ctx.clearRect(0,0,w,h);
+            var cx = w/2, cy = h/2, scale = Math.min(w,h)*0.42, fov = 3.4;
+
+            var hubPts = CATS.map(function(_,c){
+              var hb = hubPos(c);
+              return project(hb.x,hb.y,hb.z,cx,cy,scale,fov);
+            });
+
+            // spokes — pure white, low opacity, no colour
+            CATS.forEach(function(_,c){
+              var hp = hubPts[c];
+              W.forEach(function(o){
+                if (o.c !== c) return;
+                var pp = project(o.x,o.y,o.z,cx,cy,scale,fov);
+                ctx.strokeStyle = 'rgba(255,255,255,' + (0.08+0.16*pp.pz).toFixed(3) + ')';
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(hp.sx,hp.sy); ctx.lineTo(pp.sx,pp.sy); ctx.stroke();
+              });
+            });
+
+            // hub markers + labels — white / light grey only
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            CATS.forEach(function(name,c){
+              var hp = hubPts[c];
+              ctx.fillStyle = 'rgba(232,232,232,' + (0.55+0.4*hp.pz).toFixed(3) + ')';
+              ctx.font = '500 ' + (11*(0.72+0.45*hp.pz)).toFixed(1) + 'px "IBM Plex Mono",monospace';
+              ctx.fillText(name, hp.sx, hp.sy-14);
+              ctx.fillStyle = 'rgba(255,255,255,0.9)';
+              ctx.beginPath(); ctx.arc(hp.sx,hp.sy,5*hp.pz,0,7); ctx.fill();
+            });
+
+            // work points
+            var pts = W.map(function(o,i){
+              var p = project(o.x,o.y,o.z,cx,cy,scale,fov);
+              p.o = o; p.i = i; return p;
+            });
+
+            hoverIdx = -1;
+            var best = 20;
+            pts.forEach(function(p){
+              var d = Math.hypot(p.sx-mx, p.sy-my);
+              if (d < best) { best = d; hoverIdx = p.i; }
+            });
+            stage.style.cursor = drag ? 'grabbing' : (hoverIdx>=0 && W[hoverIdx].u ? 'pointer' : 'grab');
+
+            pts.sort(function(a,b){ return a.z - b.z; });
+            pts.forEach(function(p){
+              var o = p.o, hov = (p.i === hoverIdx);
+              var rad = (o.ctx ? 3.4 : 5.2) * p.pz * (hov ? 1.6 : 1);
+
+              var g = ctx.createRadialGradient(p.sx,p.sy,0,p.sx,p.sy,rad*3.4);
+              g.addColorStop(0, 'rgba(255,255,255,' + (o.ctx?0.28:0.75) + ')');
+              g.addColorStop(1, 'rgba(255,255,255,0)');
+              ctx.fillStyle = g;
+              ctx.beginPath(); ctx.arc(p.sx,p.sy,rad*3.4,0,7); ctx.fill();
+
+              if (o.ctx) {
+                ctx.strokeStyle = 'rgba(255,255,255,' + (0.30+0.3*p.pz).toFixed(3) + ')';
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.arc(p.sx,p.sy,rad,0,7); ctx.stroke();
+              } else {
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath(); ctx.arc(p.sx,p.sy,rad,0,7); ctx.fill();
+              }
+
+              if (hov) {
+                var fs = 12.5;
+                ctx.font = '500 ' + fs + 'px "IBM Plex Mono",monospace';
+                var label = o.t + ' · ' + o.y;
+                var tw = ctx.measureText(label).width;
+                ctx.fillStyle = 'rgba(0,0,0,0.82)';
+                ctx.fillRect(p.sx-tw/2-8, p.sy-rad-fs-16, tw+16, fs+12);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(label, p.sx, p.sy-rad-fs-10+fs/2);
+              }
+            });
+
+            if (!drag && !reduce) rot += 0.0016;
+          }
+          requestAnimationFrame(frame);
+        }
+        // draw synchronously first — never blank if rAF is throttled
+        frame();
+        document.addEventListener('visibilitychange', function(){ if (!document.hidden) frame(); });
+        window.addEventListener('resize', frame);
+      }
+
       var buttons = document.querySelectorAll('#filters button');
       var cats = document.querySelectorAll('.category');
       buttons.forEach(function(btn){
