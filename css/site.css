@@ -188,12 +188,24 @@ body.about-page {
   left: 26px;
   font-size: 24px;
   line-height: 1;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.85);
   border-bottom: none;
   z-index: 3;
-  transition: color 160ms ease;
+  transition: color 160ms ease, text-shadow 160ms ease;
+  animation: about-back-glow 2.4s ease-in-out infinite;
 }
-.about-back:hover { color: rgba(255, 255, 255, 0.92); }
+.about-back:hover {
+  color: #ffffff;
+  animation-play-state: paused;
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.9);
+}
+@keyframes about-back-glow {
+  0%, 100% { text-shadow: 0 0 2px rgba(255, 255, 255, 0.15); opacity: 0.5; }
+  50% { text-shadow: 0 0 12px rgba(255, 255, 255, 0.85), 0 0 22px rgba(255, 255, 255, 0.4); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .about-back { animation: none; opacity: 1; text-shadow: 0 0 8px rgba(255, 255, 255, 0.5); }
+}
 
 .about-drag-hint {
   position: absolute;
@@ -658,86 +670,6 @@ body.about-page {
   font-family: var(--mono);
   font-size: 12px;
   color: var(--muted);
-}
-
-/* ═══ Practice timeline — encodes onset & continuity, never counts ═══ */
-
-.ptl {
-  margin-top: 34px;
-  padding-top: 24px;
-  border-top: 1px solid var(--ink);
-}
-
-.ptl-claim {
-  font-family: var(--mono);
-  font-size: 12px;
-  line-height: 1.75;
-  color: var(--muted);
-  max-width: 74ch;
-  margin-bottom: 26px;
-}
-.ptl-claim b { color: var(--ink); font-weight: 500; }
-
-/* 3D constellation stage — canvas panel, dark ground like the About plexus */
-.ptl-stage {
-  position: relative;
-  background: #0c0c10;
-  height: min(58vh, 480px);
-  min-height: 320px;
-  overflow: hidden;
-  touch-action: none;
-  cursor: grab;
-}
-.ptl-stage.grabbing { cursor: grabbing; }
-.ptl-stage canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-.ptl-hint {
-  position: absolute;
-  left: 16px;
-  bottom: 12px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.3);
-  font-style: italic;
-  pointer-events: none;
-}
-
-.ptl-foot {
-  margin-top: 18px;
-  font-family: var(--mono);
-  font-size: 10.5px;
-  color: var(--muted);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 20px;
-  align-items: center;
-}
-.ptl-key {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-.ptl-key i {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--ink);
-  display: inline-block;
-}
-.ptl-key i.ctx {
-  width: 7px;
-  height: 7px;
-  background: transparent;
-  border: 1px solid #b4b4b4;
-}
-
-@media (max-width: 720px) {
-  .ptl-stage { height: min(52vh, 380px); min-height: 280px; }
 }
 
 /* ═══ WORKS index — categorised, filterable ═════════════ */
