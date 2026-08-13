@@ -184,16 +184,16 @@ body.about-page {
 
 .about-back {
   position: absolute;
-  top: 24px;
-  left: 28px;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.4);
+  top: 22px;
+  left: 26px;
+  font-size: 24px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.55);
   border-bottom: none;
   z-index: 3;
-  letter-spacing: 0.01em;
   transition: color 160ms ease;
 }
-.about-back:hover { color: rgba(255, 255, 255, 0.82); }
+.about-back:hover { color: rgba(255, 255, 255, 0.92); }
 
 .about-drag-hint {
   position: absolute;
