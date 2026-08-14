@@ -323,6 +323,20 @@ body.about-page {
 }
 .rank a { border-bottom-color: var(--rule); }
 
+.soc-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 34px;
+}
+.soc {
+  display: inline-flex;
+  color: var(--muted);
+  border-bottom: none;
+  transition: color 140ms ease;
+}
+.soc:hover, .soc:focus-visible { color: var(--ink); }
+
 /* proof strip — adjective-free, every cell one click from a source */
 .proof {
   display: grid;
